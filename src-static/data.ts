@@ -192,3 +192,107 @@ export async function downloadExportExcel(rows: any[], missingSkills: any[]) {
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.blob();
 }
+
+/* ── Resume Version Management ─────────────────────────────────────────── */
+
+export async function apiListResumes() {
+  const res = await fetch('/api/resumes', { headers: authHeaders() });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function apiCreateResume(name: string, content: string, is_default = false) {
+  const res = await fetch('/api/resumes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ name, content, is_default }),
+  });
+  if (!res.ok) throw new Error('创建简历版本失败');
+  return res.json();
+}
+
+export async function apiDeleteResume(id: number) {
+  const res = await fetch(`/api/resumes/${id}`, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) throw new Error('删除失败');
+  return res.json();
+}
+
+export async function apiSetDefaultResume(id: number) {
+  const res = await fetch(`/api/resumes/${id}/default`, { method: 'POST', headers: authHeaders() });
+  if (!res.ok) throw new Error('设置默认失败');
+  return res.json();
+}
+
+/* ── Favorites ─────────────────────────────────────────────────────────── */
+
+export async function apiListFavorites() {
+  const res = await fetch('/api/favorites', { headers: authHeaders() });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function apiAddFavorite(job: any) {
+  const res = await fetch('/api/favorites', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(job),
+  });
+  if (!res.ok) throw new Error('收藏失败');
+  return res.json();
+}
+
+export async function apiRemoveFavorite(id: number) {
+  const res = await fetch(`/api/favorites/${id}`, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) throw new Error('取消收藏失败');
+  return res.json();
+}
+
+/* ── Compare ───────────────────────────────────────────────────────────── */
+
+export async function apiCompareJobs(resumeText: string, jobA: any, jobB: any) {
+  const res = await fetch('/api/compare', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ resume_text: resumeText, job_a: jobA, job_b: jobB }),
+  });
+  if (!res.ok) throw new Error('对比失败');
+  return res.json();
+}
+
+/* ── Chat ──────────────────────────────────────────────────────────────── */
+
+export async function apiSendChat(message: string) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ message }),
+  });
+  if (!res.ok) throw new Error('发送失败');
+  return res.json();
+}
+
+export async function apiGetChatHistory() {
+  const res = await fetch('/api/chat/history', { headers: authHeaders() });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function apiClearChatHistory() {
+  const res = await fetch('/api/chat/history', { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) throw new Error('清空失败');
+  return res.json();
+}
+
+/* ── Enhanced History ──────────────────────────────────────────────────── */
+
+export async function apiDeleteHistory(id: number) {
+  const res = await fetch(`/api/history/${id}`, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) throw new Error('删除失败');
+  return res.json();
+}
+
+export async function apiGetHistoryDetail(id: number) {
+  const res = await fetch(`/api/history/${id}`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('获取详情失败');
+  return res.json();
+}

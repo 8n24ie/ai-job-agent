@@ -43,6 +43,15 @@ from api.auth import (
     update_resume,
 )
 
+from api.features import (
+    init_feature_tables,
+    create_resume, list_resumes, get_resume, update_resume_version, delete_resume, set_default_resume,
+    add_favorite, list_favorites, remove_favorite, update_favorite_notes,
+    compare_jobs,
+    save_message, get_chat_history, clear_chat_history,
+    delete_history_item, get_history_detail,
+)
+
 app = FastAPI(title="AI 求职助手 API", version="5.0")
 app.add_middleware(
     CORSMiddleware,
@@ -112,6 +121,7 @@ def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
 @app.on_event("startup")
 async def startup():
     init_user_db()
+    init_feature_tables()
 
 
 # ── Pydantic models ─────────────────────────────────────────────────────────
@@ -147,6 +157,38 @@ class ExportRowsRequest(BaseModel):
 class ExportExcelRequest(BaseModel):
     rows: List[Dict[str, Any]]
     missing_skills: Optional[List[Dict[str, Any]]] = None
+
+
+class ResumeVersionRequest(BaseModel):
+    name: str
+    content: str
+    is_default: bool = False
+
+
+class FavoriteRequest(BaseModel):
+    job_title: str = ""
+    company: str = ""
+    city: str = ""
+    salary: str = ""
+    match_score: str = ""
+    priority: str = ""
+    job_type: str = ""
+    jd_text: str = ""
+    notes: str = ""
+
+
+class CompareRequest(BaseModel):
+    resume_text: str
+    job_a: Dict[str, Any]
+    job_b: Dict[str, Any]
+
+
+class ChatRequest(BaseModel):
+    message: str
+
+
+class FavoriteNotesRequest(BaseModel):
+    notes: str
 
 
 # ── Auth endpoints ──────────────────────────────────────────────────────────
@@ -357,3 +399,151 @@ async def export_excel(req: ExportExcelRequest):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": "attachment; filename=job_rankings.xlsx"},
     )
+
+
+# ── Resume Versions ─────────────────────────────────────────────────────────
+
+@app.post("/api/resumes")
+async def api_create_resume(req: ResumeVersionRequest, user: dict = Depends(_require_user)):
+    resume_id = create_resume(user["id"], req.name, req.content, req.is_default)
+    return _sanitize({"id": resume_id, "name": req.name, "is_default": req.is_default})
+
+
+@app.get("/api/resumes")
+async def api_list_resumes(user: dict = Depends(_require_user)):
+    resumes = list_resumes(user["id"])
+    return _sanitize(resumes)
+
+
+@app.get("/api/resumes/{resume_id}")
+async def api_get_resume(resume_id: int, user: dict = Depends(_require_user)):
+    resume = get_resume(resume_id, user["id"])
+    if not resume:
+        raise HTTPException(404, "简历版本不存在")
+    return _sanitize(resume)
+
+
+@app.put("/api/resumes/{resume_id}")
+async def api_update_resume(resume_id: int, req: ResumeVersionRequest, user: dict = Depends(_require_user)):
+    ok = update_resume_version(resume_id, user["id"], req.name, req.content)
+    if not ok:
+        raise HTTPException(404, "简历版本不存在")
+    return {"status": "ok"}
+
+
+@app.delete("/api/resumes/{resume_id}")
+async def api_delete_resume(resume_id: int, user: dict = Depends(_require_user)):
+    ok = delete_resume(resume_id, user["id"])
+    if not ok:
+        raise HTTPException(404, "简历版本不存在")
+    return {"status": "ok"}
+
+
+@app.post("/api/resumes/{resume_id}/default")
+async def api_set_default_resume(resume_id: int, user: dict = Depends(_require_user)):
+    ok = set_default_resume(resume_id, user["id"])
+    if not ok:
+        raise HTTPException(404, "简历版本不存在")
+    return {"status": "ok"}
+
+
+# ── Favorites ───────────────────────────────────────────────────────────────
+
+@app.post("/api/favorites")
+async def api_add_favorite(req: FavoriteRequest, user: dict = Depends(_require_user)):
+    fav_id = add_favorite(user["id"], **req.dict())
+    return _sanitize({"id": fav_id})
+
+
+@app.get("/api/favorites")
+async def api_list_favorites(user: dict = Depends(_require_user)):
+    favs = list_favorites(user["id"])
+    return _sanitize(favs)
+
+
+@app.delete("/api/favorites/{fav_id}")
+async def api_remove_favorite(fav_id: int, user: dict = Depends(_require_user)):
+    ok = remove_favorite(fav_id, user["id"])
+    if not ok:
+        raise HTTPException(404, "收藏不存在")
+    return {"status": "ok"}
+
+
+@app.patch("/api/favorites/{fav_id}/notes")
+async def api_update_favorite_notes(fav_id: int, req: FavoriteNotesRequest, user: dict = Depends(_require_user)):
+    ok = update_favorite_notes(fav_id, user["id"], req.notes)
+    if not ok:
+        raise HTTPException(404, "收藏不存在")
+    return {"status": "ok"}
+
+
+# ── Job Comparison ──────────────────────────────────────────────────────────
+
+@app.post("/api/compare")
+async def api_compare_jobs(req: CompareRequest, user: dict = Depends(_require_user)):
+    client = get_client()
+    result = compare_jobs(req.resume_text, req.job_a, req.job_b, client)
+    return _sanitize(result)
+
+
+# ── Chat ────────────────────────────────────────────────────────────────────
+
+CHAT_SYSTEM_PROMPT = (
+    "你是一个专业的求职顾问助手。你帮助用户分析岗位、优化简历、准备面试、规划职业发展。\n"
+    "回答要简洁实用，用中文。如果用户问的问题和求职无关，礼貌地引导回求职话题。"
+)
+
+
+@app.post("/api/chat")
+async def api_chat(req: ChatRequest, user: dict = Depends(_require_user)):
+    client = get_client()
+
+    # Save user message
+    save_message(user["id"], "user", req.message)
+
+    # Build messages for LLM
+    history = get_chat_history(user["id"])
+    messages = [{"role": "system", "content": CHAT_SYSTEM_PROMPT}]
+    for msg in history:
+        messages.append({"role": msg["role"], "content": msg["content"]})
+
+    # Generate response
+    try:
+        response_text = client.chat(messages)
+    except Exception as e:
+        raise HTTPException(500, f"AI 回复失败: {e}")
+
+    # Save assistant response
+    save_message(user["id"], "assistant", response_text)
+
+    return _sanitize({"response": response_text})
+
+
+@app.get("/api/chat/history")
+async def api_chat_history(user: dict = Depends(_require_user)):
+    history = get_chat_history(user["id"])
+    return _sanitize(history)
+
+
+@app.delete("/api/chat/history")
+async def api_clear_chat_history(user: dict = Depends(_require_user)):
+    clear_chat_history(user["id"])
+    return {"status": "ok"}
+
+
+# ── Enhanced History ────────────────────────────────────────────────────────
+
+@app.get("/api/history/{item_id}")
+async def api_get_history_detail(item_id: int, user: dict = Depends(_require_user)):
+    detail = get_history_detail(item_id, user["id"])
+    if not detail:
+        raise HTTPException(404, "历史记录不存在")
+    return _sanitize(detail)
+
+
+@app.delete("/api/history/{item_id}")
+async def api_delete_history_item(item_id: int, user: dict = Depends(_require_user)):
+    ok = delete_history_item(item_id, user["id"])
+    if not ok:
+        raise HTTPException(404, "历史记录不存在")
+    return {"status": "ok"}

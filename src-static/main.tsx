@@ -6,13 +6,18 @@ import {
   ShieldCheck, Sparkles, Zap, Upload, FileSpreadsheet, FileText,
   Wifi, WifiOff, Loader2, AlertCircle, Newspaper,
   User, LogOut, Clock, X, Eye, EyeOff,
+  Bookmark, BookmarkCheck, MessageSquare, Send, Trash2, Star, GitCompare,
+  ChevronDown, Plus, History, Layers,
 } from "lucide-react";
 import { BackgroundBeams, FloatingNav, LampHeader, SparklesCore, Spotlight, TextGenerateEffect } from "./components";
 import {
   dashboardData, fetchBatchAnalysis, fetchSingleAnalysis,
   downloadExportCSV, downloadExportExcel,
   getToken, setToken, getUser, setUser, logout,
-  apiRegister, apiLogin, apiSaveResume, apiLoadResume, apiGetHistory,
+  apiRegister, apiLogin, apiSaveResume, apiLoadResume, apiGetHistory, apiDeleteHistory, apiGetHistoryDetail,
+  apiListResumes, apiCreateResume, apiDeleteResume, apiSetDefaultResume,
+  apiListFavorites, apiAddFavorite, apiRemoveFavorite,
+  apiSendChat, apiGetChatHistory,
 } from "./data";
 import "./styles.css";
 
@@ -127,17 +132,70 @@ function AuthModal({ onClose, onAuth }: { onClose: () => void; onAuth: (user: an
 
 /* ── History Panel ───────────────────────────────────────────────────────── */
 
-function HistoryPanel({ onClose }: { onClose: () => void }) {
+function HistoryPanel({ onClose, onLoadResult }: { onClose: () => void; onLoadResult?: (data: any) => void }) {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   useEffect(() => {
     apiGetHistory().then((h) => { setHistory(h); setLoading(false); });
   }, []);
 
+  async function handleDelete(id: number) {
+    try {
+      await apiDeleteHistory(id);
+      setHistory((prev) => prev.filter((h) => h.id !== id));
+    } catch {}
+  }
+
+  function handleLoad(h: any) {
+    if (!h.result_data || !onLoadResult) return;
+    const r = h.result_data;
+    if (h.mode === "batch" && r.rows) {
+      onLoadResult({
+        jobs: r.rows.map((row: any) => ({
+          title: row.job_title ?? "未知", company: row.company ?? "",
+          city: row.city ?? "", salary: row.salary ?? "",
+          score: row.match_score ?? 0, priority: row.priority ?? "低",
+          type: row.job_type ?? "",
+          skills: [...(row.matched_skills ?? []), ...(row.missing_skills ?? [])].slice(0, 5),
+        })),
+        skillGaps: (r.missing_skills ?? []).map((s: any) => ({ name: s.skill ?? s.name ?? "", count: s.count ?? 0 })),
+        metrics: [
+          { label: "岗位样本", value: String(r.stats?.total ?? 0), delta: `共 ${r.stats?.total ?? 0} 条`, tone: "cyan" },
+          { label: "高优先级", value: String(r.stats?.high ?? 0), delta: "建议先投", tone: "emerald" },
+          { label: "中优先级", value: String(r.stats?.mid ?? 0), delta: "可选投递", tone: "violet" },
+          { label: "低优先级", value: String(r.stats?.low ?? 0), delta: "暂不优先", tone: "amber" },
+        ],
+        report: r.report ?? null,
+        _rawRows: r.rows ?? [], _rawMissing: r.missing_skills ?? [],
+      });
+    } else if (h.mode === "single" && r.match) {
+      const jd = r.jd_analysis ?? {};
+      const match = r.match;
+      onLoadResult({
+        jobs: [{
+          title: jd.job_title ?? "待分析", company: "", city: "", salary: "",
+          score: match.match_score ?? 0,
+          priority: (match.match_score ?? 0) >= 70 ? "高" : ((match.match_score ?? 0) >= 50 ? "中" : "低"),
+          type: "", skills: [...(jd.required_skills ?? []), ...(match.missing_skills ?? [])].slice(0, 5),
+        }],
+        skillGaps: (match.missing_skills ?? []).map((s: string) => ({ name: s, count: 1 })),
+        metrics: [
+          { label: "匹配度", value: `${match.match_score ?? 0}%`, delta: match.recommendation ?? "", tone: "cyan" },
+          { label: "已匹配", value: String((match.matched_skills ?? []).length), delta: "技能", tone: "emerald" },
+          { label: "缺失", value: String((match.missing_skills ?? []).length), delta: "需补充", tone: "amber" },
+          { label: "难度", value: `${jd.difficulty ?? 0}`, delta: jd.suitable_for_fresh_graduate ? "适合应届" : "需经验", tone: "violet" },
+        ],
+        report: r.questions ?? null, _rawRows: [], _rawMissing: [],
+      });
+    }
+    onClose();
+  }
+
   return (
     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-      <motion.div className="modal-content" style={{ maxWidth: 600, maxHeight: "80vh", overflowY: "auto" }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
+      <motion.div className="modal-content" style={{ maxWidth: 640, maxHeight: "80vh", overflowY: "auto" }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}><X size={18} /></button>
         <h2 style={{ margin: "0 0 16px", color: "#e2e8f0", fontSize: 20 }}><Clock size={18} style={{ verticalAlign: -3, marginRight: 8 }} />分析历史</h2>
 
@@ -146,21 +204,56 @@ function HistoryPanel({ onClose }: { onClose: () => void }) {
         ) : history.length === 0 ? (
           <p style={{ color: "#64748b", textAlign: "center", padding: 40 }}>暂无分析记录</p>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {history.map((h: any) => (
-              <div key={h.id} style={{ padding: 16, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, color: "#818cf8", fontWeight: 600 }}>{h.mode === "batch" ? "批量分析" : "单条分析"}</span>
-                  <span style={{ fontSize: 12, color: "#475569" }}>{h.created_at}</span>
-                </div>
-                {h.mode === "batch" && h.result_data?.stats && (
-                  <div style={{ fontSize: 13, color: "#94a3b8" }}>
-                    共 {h.result_data.stats.total} 条 · 高优 {h.result_data.stats.high} · 中优 {h.result_data.stats.mid} · 低优 {h.result_data.stats.low}
+              <div key={h.id} style={{ padding: 14, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: expandedId === h.id ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.02)", transition: "background 0.2s" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} onClick={() => setExpandedId(expandedId === h.id ? null : h.id)}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 13, padding: "3px 10px", borderRadius: 6, background: h.mode === "batch" ? "rgba(129,140,248,0.15)" : "rgba(16,185,129,0.15)", color: h.mode === "batch" ? "#818cf8" : "#10b981", fontWeight: 600 }}>
+                      {h.mode === "batch" ? "批量" : "单条"}
+                    </span>
+                    <span style={{ fontSize: 13, color: "#94a3b8" }}>{h.created_at}</span>
                   </div>
-                )}
-                {h.mode === "single" && h.result_data?.match && (
-                  <div style={{ fontSize: 13, color: "#94a3b8" }}>
-                    匹配度 {h.result_data.match.match_score ?? 0}% · {h.result_data.jd_analysis?.job_title ?? "未知岗位"}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    {h.mode === "batch" && h.result_data?.stats && (
+                      <span style={{ fontSize: 12, color: "#64748b" }}>{h.result_data.stats.total} 条</span>
+                    )}
+                    {h.mode === "single" && h.result_data?.match && (
+                      <span style={{ fontSize: 12, color: "#64748b" }}>{h.result_data.match.match_score ?? 0}%</span>
+                    )}
+                    <ChevronDown size={14} style={{ color: "#64748b", transform: expandedId === h.id ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                  </div>
+                </div>
+
+                {expandedId === h.id && (
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                    {h.mode === "batch" && h.result_data?.rows && (
+                      <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 10 }}>
+                        <div style={{ marginBottom: 8 }}>高优 {h.result_data.stats?.high} · 中优 {h.result_data.stats?.mid} · 低优 {h.result_data.stats?.low}</div>
+                        {h.result_data.rows.slice(0, 3).map((r: any, i: number) => (
+                          <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                            {r.job_title} — {r.match_score}分 — {r.priority}
+                          </div>
+                        ))}
+                        {h.result_data.rows.length > 3 && <div style={{ color: "#475569", marginTop: 4 }}>+{h.result_data.rows.length - 3} 更多</div>}
+                      </div>
+                    )}
+                    {h.mode === "single" && h.result_data?.match && (
+                      <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 10 }}>
+                        <div>岗位: {h.result_data.jd_analysis?.job_title ?? "未知"}</div>
+                        <div>匹配度: {h.result_data.match.match_score ?? 0}%</div>
+                        <div>已匹配: {(h.result_data.match.matched_skills ?? []).join(", ")}</div>
+                        <div>缺失: {(h.result_data.match.missing_skills ?? []).join(", ")}</div>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={() => handleLoad(h)} style={{ fontSize: 12, padding: "6px 14px", borderRadius: 6, background: "rgba(16,185,129,0.15)", color: "#10b981", border: "none", cursor: "pointer" }}>
+                        重新加载
+                      </button>
+                      <button onClick={() => handleDelete(h.id)} style={{ fontSize: 12, padding: "6px 14px", borderRadius: 6, background: "rgba(248,113,113,0.1)", color: "#f87171", border: "none", cursor: "pointer" }}>
+                        删除
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -190,6 +283,18 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showResumes, setShowResumes] = useState(false);
+  const [resumes, setResumes] = useState<any[]>([]);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [showChat, setShowChat] = useState(false);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [compareA, setCompareA] = useState<any>(null);
+  const [compareB, setCompareB] = useState<any>(null);
+  const [compareResult, setCompareResult] = useState<any>(null);
+  const [showCompare, setShowCompare] = useState(false);
 
   useEffect(() => {
     fetch("/api/health")
@@ -219,6 +324,14 @@ function App() {
     document.addEventListener("click", handler);
     return () => document.removeEventListener("click", handler);
   }, [showUserMenu]);
+
+  useEffect(() => {
+    if (currentUser) {
+      loadResumes();
+      loadFavorites();
+      loadChatHistory();
+    }
+  }, [currentUser]);
 
   function handleLogout() {
     logout();
@@ -313,6 +426,52 @@ function App() {
     try { const blob = await downloadExportExcel(rows, gaps); downloadBlob(blob, "job_rankings.xlsx"); } catch (e: any) { setError(e.message); }
   }
 
+  async function loadResumes() {
+    try { const r = await apiListResumes(); setResumes(r); } catch {}
+  }
+  async function loadFavorites() {
+    try { const r = await apiListFavorites(); setFavorites(r); } catch {}
+  }
+  async function handleSaveResumeVersion() {
+    if (!resumeText.trim()) return;
+    const name = prompt('输入简历版本名称：', '默认简历');
+    if (!name) return;
+    try {
+      await apiCreateResume(name, resumeText, true);
+      loadResumes();
+    } catch (e: any) { setError(e.message); }
+  }
+  async function handleAddFavorite(job: any) {
+    if (!currentUser) { setShowAuth(true); return; }
+    try {
+      await apiAddFavorite({
+        job_title: job.title, company: job.company, city: job.city,
+        salary: job.salary, match_score: String(job.score),
+        priority: job.priority, job_type: job.type,
+      });
+      loadFavorites();
+    } catch (e: any) { setError(e.message); }
+  }
+  async function handleRemoveFavorite(id: number) {
+    try { await apiRemoveFavorite(id); loadFavorites(); } catch (e: any) { setError(e.message); }
+  }
+  async function handleSendChat() {
+    if (!chatInput.trim() || !currentUser) return;
+    const msg = chatInput;
+    setChatInput('');
+    setChatMessages(prev => [...prev, { role: 'user', content: msg }]);
+    setChatLoading(true);
+    try {
+      const res = await apiSendChat(msg);
+      setChatMessages(prev => [...prev, { role: 'assistant', content: res.response }]);
+    } catch (e: any) {
+      setChatMessages(prev => [...prev, { role: 'assistant', content: '发送失败：' + e.message }]);
+    } finally { setChatLoading(false); }
+  }
+  async function loadChatHistory() {
+    try { const h = await apiGetChatHistory(); setChatMessages(h); } catch {}
+  }
+
   const data = apiData ?? dashboardData;
   const displayMetrics = apiData?.metrics ?? dashboardData.metrics;
   const displayJobs = apiData?.jobs ?? dashboardData.jobs;
@@ -344,6 +503,12 @@ function App() {
             </button>
             {showUserMenu && (
               <div className="user-dropdown" onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => { setShowResumes(true); setShowUserMenu(false); }}>
+                  <Layers size={14} /> 简历管理
+                </button>
+                <button onClick={() => { setShowFavorites(true); setShowUserMenu(false); }}>
+                  <Bookmark size={14} /> 岗位收藏
+                </button>
                 <button onClick={() => { setShowHistory(true); setShowUserMenu(false); }}>
                   <Clock size={14} /> 分析历史
                 </button>
@@ -363,7 +528,7 @@ function App() {
       {/* ── Auth Modal ── */}
       <AnimatePresence>
         {showAuth && <AuthModal onClose={() => setShowAuth(false)} onAuth={setCurrentUser} />}
-        {showHistory && <HistoryPanel onClose={() => setShowHistory(false)} />}
+        {showHistory && <HistoryPanel onClose={() => setShowHistory(false)} onLoadResult={(data) => setApiData(data)} />}
       </AnimatePresence>
 
       {/* Hero */}
@@ -520,6 +685,13 @@ function App() {
             {displayJobs.map((job: any, i: number) => (
               <motion.article className="job-card" key={job.title + i} initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}>
                 <div className="score-ring"><span>{job.score}</span></div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleAddFavorite(job); }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--amber)', padding: 4 }}
+                  title="收藏"
+                >
+                  <Bookmark size={16} />
+                </button>
                 <div className="job-main">
                   <div className="job-title-row"><h3>{job.title}</h3><b className={job.priority === "高" ? "high" : "mid"}>{job.priority}</b></div>
                   <p>{job.company} · {job.city} · {job.salary}</p>
@@ -564,6 +736,177 @@ function App() {
           <a className="ghost-btn" href="#" onClick={(e) => { e.preventDefault(); handleExportExcel(); }}><Download size={16} /> 导出 Excel</a>
         </div>
       </footer>
+
+      {/* Chat FAB */}
+      {currentUser && (
+        <button
+          onClick={() => setShowChat(!showChat)}
+          style={{
+            position: 'fixed', bottom: 24, right: 24, zIndex: 9998,
+            width: 56, height: 56, borderRadius: '50%',
+            background: 'var(--accent)', color: '#0a0a0f',
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 24px rgba(16,185,129,0.4)',
+            transition: 'transform 0.2s cubic-bezier(0.34,1.56,0.64,1)',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+        >
+          <MessageSquare size={24} />
+        </button>
+      )}
+
+      {/* Chat Panel */}
+      {showChat && currentUser && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+          style={{
+            position: 'fixed', bottom: 92, right: 24, zIndex: 9998,
+            width: 380, maxHeight: '70vh',
+            background: 'var(--panel-strong)', border: '1px solid var(--line)',
+            borderRadius: 20, display: 'flex', flexDirection: 'column',
+            overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
+          }}
+        >
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, fontSize: 16, color: 'var(--heading)' }}><MessageSquare size={16} style={{ verticalAlign: -2, marginRight: 8 }} />AI 求职助手</h3>
+            <button onClick={() => setShowChat(false)} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}><X size={18} /></button>
+          </div>
+          <div style={{ flex: 1, overflow: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {chatMessages.length === 0 && (
+              <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '40px 20px', fontSize: 14 }}>
+                问我任何求职相关的问题
+              </div>
+            )}
+            {chatMessages.map((msg, i) => (
+              <div key={i} style={{
+                alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                maxWidth: '80%', padding: '10px 14px', borderRadius: 14,
+                background: msg.role === 'user' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)',
+                color: 'var(--text)', fontSize: 14, lineHeight: 1.6,
+              }}>
+                {msg.content}
+              </div>
+            ))}
+            {chatLoading && (
+              <div style={{ alignSelf: 'flex-start', padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', color: 'var(--muted)', fontSize: 14 }}>思考中...</div>
+            )}
+          </div>
+          <div style={{ padding: 12, borderTop: '1px solid var(--line)', display: 'flex', gap: 8 }}>
+            <input
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
+              placeholder="问点什么..."
+              style={{
+                flex: 1, padding: '10px 14px', borderRadius: 12,
+                border: '1px solid var(--line)', background: 'var(--panel)',
+                color: 'var(--text)', fontSize: 14, outline: 'none',
+              }}
+            />
+            <button
+              onClick={handleSendChat}
+              disabled={chatLoading}
+              style={{
+                width: 40, height: 40, borderRadius: 12,
+                background: 'var(--accent)', color: '#0a0a0f',
+                border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <Send size={16} />
+            </button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Resume Manager Modal */}
+      <AnimatePresence>
+        {showResumes && (
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowResumes(false)}>
+            <motion.div className="modal-content" style={{ maxWidth: 600, maxHeight: '80vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowResumes(false)}><X size={18} /></button>
+              <h2 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 20 }}><Layers size={18} style={{ verticalAlign: -3, marginRight: 8 }} />简历管理</h2>
+              <button onClick={handleSaveResumeVersion} className="primary-btn" style={{ marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <Plus size={14} /> 保存当前简历为新版本
+              </button>
+              {resumes.length === 0 ? (
+                <p style={{ color: '#64748b', textAlign: 'center', padding: 40 }}>暂无保存的简历版本</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {resumes.map((r: any) => (
+                    <div key={r.id} style={{ padding: 16, borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { setResumeText(r.resume_text); setShowResumes(false); }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{r.name}</span>
+                          {r.is_default && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(16,185,129,0.2)', color: '#10b981' }}>默认</span>}
+                        </div>
+                        <span style={{ fontSize: 12, color: '#475569' }}>{r.created_at}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        {!r.is_default && (
+                          <button onClick={() => { apiSetDefaultResume(r.id).then(loadResumes); }} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', cursor: 'pointer', padding: '4px 10px', borderRadius: 6, fontSize: 12 }}>设为默认</button>
+                        )}
+                        <button onClick={() => { apiDeleteResume(r.id).then(loadResumes); }} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 4 }}><Trash2 size={14} /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Favorites Modal */}
+      <AnimatePresence>
+        {showFavorites && (
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFavorites(false)}>
+            <motion.div className="modal-content" style={{ maxWidth: 600, maxHeight: '80vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowFavorites(false)}><X size={18} /></button>
+              <h2 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 20 }}><Bookmark size={18} style={{ verticalAlign: -3, marginRight: 8 }} />岗位收藏</h2>
+              {favorites.length === 0 ? (
+                <p style={{ color: '#64748b', textAlign: 'center', padding: 40 }}>暂无收藏的岗位</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {favorites.map((f: any) => (
+                    <div key={f.id} style={{ padding: 16, borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{f.job_title}</span>
+                          <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: f.priority === '高' ? 'rgba(16,185,129,0.2)' : 'rgba(129,140,248,0.2)', color: f.priority === '高' ? '#10b981' : '#818cf8' }}>{f.priority}</span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: 13, color: '#94a3b8' }}>{f.company} · {f.city} · {f.salary}</p>
+                        <span style={{ fontSize: 12, color: '#475569' }}>匹配度: {f.match_score}%</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <input
+                          type="checkbox"
+                          checked={compareA?.id === f.id || compareB?.id === f.id}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              if (!compareA) setCompareA(f);
+                              else if (!compareB) setCompareB(f);
+                            } else {
+                              if (compareA?.id === f.id) setCompareA(null);
+                              if (compareB?.id === f.id) setCompareB(null);
+                            }
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        />
+                        <button onClick={() => handleRemoveFavorite(f.id)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 4 }}><Trash2 size={14} /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
