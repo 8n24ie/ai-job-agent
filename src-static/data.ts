@@ -223,6 +223,16 @@ export async function apiSetDefaultResume(id: number) {
   return res.json();
 }
 
+export async function apiUpdateResume(id: number, name: string, content: string) {
+  const res = await fetch(`/api/resumes/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ name, content, is_default: false }),
+  });
+  if (!res.ok) throw new Error('更新简历版本失败');
+  return res.json();
+}
+
 /* ── Favorites ─────────────────────────────────────────────────────────── */
 
 export async function apiListFavorites() {

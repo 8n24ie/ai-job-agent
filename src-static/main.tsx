@@ -7,7 +7,7 @@ import {
   Wifi, WifiOff, Loader2, AlertCircle, Newspaper,
   User, LogOut, Clock, X, Eye, EyeOff,
   Bookmark, BookmarkCheck, MessageSquare, Send, Trash2, Star, GitCompare,
-  ChevronDown, Plus, History, Layers,
+  ChevronDown, Plus, History, Layers, Edit2, Check,
 } from "lucide-react";
 import { BackgroundBeams, FloatingNav, LampHeader, SparklesCore, Spotlight, TextGenerateEffect } from "./components";
 import {
@@ -15,7 +15,7 @@ import {
   downloadExportCSV, downloadExportExcel,
   getToken, setToken, getUser, setUser, logout,
   apiRegister, apiLogin, apiSaveResume, apiLoadResume, apiGetHistory, apiDeleteHistory, apiGetHistoryDetail,
-  apiListResumes, apiCreateResume, apiDeleteResume, apiSetDefaultResume,
+  apiListResumes, apiCreateResume, apiDeleteResume, apiSetDefaultResume, apiUpdateResume,
   apiListFavorites, apiAddFavorite, apiRemoveFavorite,
   apiSendChat, apiGetChatHistory,
 } from "./data";
@@ -285,6 +285,10 @@ function App() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showResumes, setShowResumes] = useState(false);
   const [resumes, setResumes] = useState<any[]>([]);
+  const [expandedResumeId, setExpandedResumeId] = useState<number | null>(null);
+  const [renamingId, setRenamingId] = useState<number | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [showChat, setShowChat] = useState(false);
@@ -438,6 +442,22 @@ function App() {
     if (!name) return;
     try {
       await apiCreateResume(name, resumeText, true);
+      loadResumes();
+    } catch (e: any) { setError(e.message); }
+  }
+  async function handleRenameResume(id: number) {
+    if (!renameValue.trim()) return;
+    try {
+      const r = resumes.find((x) => x.id === id);
+      await apiUpdateResume(id, renameValue.trim(), r?.resume_text ?? '');
+      setRenamingId(null);
+      loadResumes();
+    } catch (e: any) { setError(e.message); }
+  }
+  async function handleDeleteResume(id: number) {
+    try {
+      await apiDeleteResume(id);
+      setDeleteConfirmId(null);
       loadResumes();
     } catch (e: any) { setError(e.message); }
   }
@@ -826,32 +846,77 @@ function App() {
       {/* Resume Manager Modal */}
       <AnimatePresence>
         {showResumes && (
-          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowResumes(false)}>
-            <motion.div className="modal-content" style={{ maxWidth: 600, maxHeight: '80vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
-              <button className="modal-close" onClick={() => setShowResumes(false)}><X size={18} /></button>
-              <h2 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 20 }}><Layers size={18} style={{ verticalAlign: -3, marginRight: 8 }} />简历管理</h2>
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowResumes(false); setExpandedResumeId(null); setRenamingId(null); setDeleteConfirmId(null); }}>
+            <motion.div className="modal-content" style={{ maxWidth: 640, maxHeight: '80vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => { setShowResumes(false); setExpandedResumeId(null); setRenamingId(null); setDeleteConfirmId(null); }}><X size={18} /></button>
+              <h2 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 20 }}><Layers size={18} style={{ verticalAlign: -3, marginRight: 8 }} />简历版本管理</h2>
               <button onClick={handleSaveResumeVersion} className="primary-btn" style={{ marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 <Plus size={14} /> 保存当前简历为新版本
               </button>
               {resumes.length === 0 ? (
                 <p style={{ color: '#64748b', textAlign: 'center', padding: 40 }}>暂无保存的简历版本</p>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {resumes.map((r: any) => (
-                    <div key={r.id} style={{ padding: 16, borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { setResumeText(r.resume_text); setShowResumes(false); }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                          <span style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{r.name}</span>
-                          {r.is_default && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(16,185,129,0.2)', color: '#10b981' }}>默认</span>}
+                    <div key={r.id} style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: expandedResumeId === r.id ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)', transition: 'background 0.2s' }}>
+                      {/* Header row */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setExpandedResumeId(expandedResumeId === r.id ? null : r.id)}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
+                          {renamingId === r.id ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={(e) => e.stopPropagation()}>
+                              <input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleRenameResume(r.id); if (e.key === 'Escape') setRenamingId(null); }} style={{ fontSize: 13, padding: '4px 8px', borderRadius: 6, border: '1px solid rgba(16,185,129,0.4)', background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', outline: 'none', width: 160 }} autoFocus />
+                              <button onClick={() => handleRenameResume(r.id)} style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: 4 }}><Check size={14} /></button>
+                              <button onClick={() => setRenamingId(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: 4 }}><X size={14} /></button>
+                            </div>
+                          ) : (
+                            <>
+                              <span style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{r.name}</span>
+                              {r.is_default && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(16,185,129,0.2)', color: '#10b981' }}>默认</span>}
+                            </>
+                          )}
                         </div>
-                        <span style={{ fontSize: 12, color: '#475569' }}>{r.created_at}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 11, color: '#475569' }}>{(r.resume_text ?? '').length} 字</span>
+                          <ChevronDown size={14} style={{ color: '#64748b', transform: expandedResumeId === r.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        {!r.is_default && (
-                          <button onClick={() => { apiSetDefaultResume(r.id).then(loadResumes); }} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', cursor: 'pointer', padding: '4px 10px', borderRadius: 6, fontSize: 12 }}>设为默认</button>
-                        )}
-                        <button onClick={() => { apiDeleteResume(r.id).then(loadResumes); }} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 4 }}><Trash2 size={14} /></button>
-                      </div>
+
+                      {/* Expanded details */}
+                      {expandedResumeId === r.id && (
+                        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                          {/* Content preview */}
+                          <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.7, marginBottom: 12, maxHeight: 200, overflowY: 'auto', padding: '10px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.2)', whiteSpace: 'pre-wrap' }}>
+                            {(r.resume_text ?? '').slice(0, 500)}{(r.resume_text ?? '').length > 500 ? '...' : ''}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#475569', marginBottom: 10 }}>创建于 {r.created_at}</div>
+
+                          {/* Action buttons */}
+                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                            <button onClick={() => { setResumeText(r.resume_text); setShowResumes(false); }} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(16,185,129,0.15)', color: '#10b981', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                              <Eye size={13} /> 加载到编辑器
+                            </button>
+                            {!r.is_default && (
+                              <button onClick={() => { apiSetDefaultResume(r.id).then(loadResumes); }} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(129,140,248,0.1)', color: '#818cf8', border: 'none', cursor: 'pointer' }}>
+                                设为默认
+                              </button>
+                            )}
+                            <button onClick={() => { setRenamingId(r.id); setRenameValue(r.name); }} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                              <Edit2 size={13} /> 重命名
+                            </button>
+                            {deleteConfirmId === r.id ? (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span style={{ fontSize: 12, color: '#f87171' }}>确认删除？</span>
+                                <button onClick={() => handleDeleteResume(r.id)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(248,113,113,0.15)', color: '#f87171', border: 'none', cursor: 'pointer' }}>删除</button>
+                                <button onClick={() => setDeleteConfirmId(null)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: 'none', cursor: 'pointer' }}>取消</button>
+                              </div>
+                            ) : (
+                              <button onClick={() => setDeleteConfirmId(r.id)} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(248,113,113,0.1)', color: '#f87171', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                <Trash2 size={13} /> 删除
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
