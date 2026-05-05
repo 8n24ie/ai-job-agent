@@ -17,7 +17,7 @@ import {
   apiRegister, apiLogin, apiSaveResume, apiLoadResume, apiGetHistory, apiDeleteHistory, apiGetHistoryDetail,
   apiListResumes, apiCreateResume, apiDeleteResume, apiSetDefaultResume, apiUpdateResume,
   apiListFavorites, apiAddFavorite, apiRemoveFavorite,
-  apiSendChat, apiGetChatHistory,
+  apiSendChat, apiGetChatHistory, apiCompareJobs,
 } from "./data";
 import "./styles.css";
 
@@ -303,6 +303,7 @@ function App() {
   const [compareB, setCompareB] = useState<any>(null);
   const [compareResult, setCompareResult] = useState<any>(null);
   const [showCompare, setShowCompare] = useState(false);
+  const [compareLoading, setCompareLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/health")
@@ -479,6 +480,20 @@ function App() {
   async function handleRemoveFavorite(id: number) {
     try { await apiRemoveFavorite(id); setFavDeleteConfirmId(null); loadFavorites(); } catch (e: any) { setError(e.message); }
   }
+  async function handleCompare() {
+    if (!compareA || !compareB) return;
+    setCompareLoading(true);
+    setCompareResult(null);
+    try {
+      const result = await apiCompareJobs(resumeText, {
+        job_title: compareA.job_title, company: compareA.company, jd_text: compareA.jd_text || '',
+      }, {
+        job_title: compareB.job_title, company: compareB.company, jd_text: compareB.jd_text || '',
+      });
+      setCompareResult(result);
+    } catch (e: any) { setError(e.message); }
+    setCompareLoading(false);
+  }
   async function handleSendChat() {
     if (!chatInput.trim() || !currentUser) return;
     const msg = chatInput;
@@ -532,6 +547,9 @@ function App() {
                 </button>
                 <button onClick={() => { setShowFavorites(true); setShowUserMenu(false); }}>
                   <Bookmark size={14} /> 岗位收藏
+                </button>
+                <button onClick={() => { setShowCompare(true); loadFavorites(); setShowUserMenu(false); }}>
+                  <GitCompare size={14} /> 岗位对比
                 </button>
                 <button onClick={() => { setShowHistory(true); setShowUserMenu(false); }}>
                   <Clock size={14} /> 分析历史
@@ -1050,6 +1068,147 @@ function App() {
                   </div>
                 );
               })()}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Compare Modal */}
+      <AnimatePresence>
+        {showCompare && (
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowCompare(false); setCompareResult(null); }}>
+            <motion.div className="modal-content" style={{ maxWidth: 720, maxHeight: '85vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => { setShowCompare(false); setCompareResult(null); }}><X size={18} /></button>
+              <h2 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 20 }}><GitCompare size={18} style={{ verticalAlign: -3, marginRight: 8 }} />岗位对比</h2>
+
+              {/* Selection area */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 12, alignItems: 'start', marginBottom: 20 }}>
+                {/* Job A */}
+                <div style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.05)' }}>
+                  <div style={{ fontSize: 12, color: '#10b981', fontWeight: 600, marginBottom: 8 }}>岗位 A</div>
+                  {compareA ? (
+                    <div>
+                      <div style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{compareA.job_title}</div>
+                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{compareA.company}{compareA.city ? ` · ${compareA.city}` : ''}</div>
+                      <button onClick={() => setCompareA(null)} style={{ marginTop: 8, fontSize: 11, padding: '4px 10px', borderRadius: 6, background: 'rgba(248,113,113,0.1)', color: '#f87171', border: 'none', cursor: 'pointer' }}>清除</button>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 13, color: '#475569' }}>
+                      {favorites.length > 0 ? (
+                        <select onChange={(e) => { const f = favorites.find((x: any) => x.id === Number(e.target.value)); if (f) setCompareA(f); }} style={{ width: '100%', fontSize: 13, padding: '8px', borderRadius: 8, background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', outline: 'none' }}>
+                          <option value="">从收藏中选择...</option>
+                          {favorites.map((f: any) => <option key={f.id} value={f.id}>{f.job_title} — {f.company}</option>)}
+                        </select>
+                      ) : <span>请先收藏岗位</span>}
+                    </div>
+                  )}
+                </div>
+
+                {/* VS divider */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 40 }}>
+                  <span style={{ fontSize: 16, fontWeight: 800, color: '#475569' }}>VS</span>
+                </div>
+
+                {/* Job B */}
+                <div style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(129,140,248,0.3)', background: 'rgba(129,140,248,0.05)' }}>
+                  <div style={{ fontSize: 12, color: '#818cf8', fontWeight: 600, marginBottom: 8 }}>岗位 B</div>
+                  {compareB ? (
+                    <div>
+                      <div style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{compareB.job_title}</div>
+                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{compareB.company}{compareB.city ? ` · ${compareB.city}` : ''}</div>
+                      <button onClick={() => setCompareB(null)} style={{ marginTop: 8, fontSize: 11, padding: '4px 10px', borderRadius: 6, background: 'rgba(248,113,113,0.1)', color: '#f87171', border: 'none', cursor: 'pointer' }}>清除</button>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 13, color: '#475569' }}>
+                      {favorites.length > 0 ? (
+                        <select onChange={(e) => { const f = favorites.find((x: any) => x.id === Number(e.target.value)); if (f) setCompareB(f); }} style={{ width: '100%', fontSize: 13, padding: '8px', borderRadius: 8, background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', outline: 'none' }}>
+                          <option value="">从收藏中选择...</option>
+                          {favorites.map((f: any) => <option key={f.id} value={f.id}>{f.job_title} — {f.company}</option>)}
+                        </select>
+                      ) : <span>请先收藏岗位</span>}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Compare button */}
+              <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                <button onClick={handleCompare} disabled={!compareA || !compareB || compareLoading} className="primary-btn" style={{ opacity: (!compareA || !compareB) ? 0.4 : 1, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {compareLoading ? <><Loader2 size={14} className="animate-spin" /> 对比中...</> : <><GitCompare size={14} /> 开始对比</>}
+                </button>
+              </div>
+
+              {/* Compare results */}
+              {compareResult && (
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 20 }}>
+                  <h3 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 16 }}>对比结果</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    {/* Job A result */}
+                    <div style={{ padding: 16, borderRadius: 10, border: '1px solid rgba(16,185,129,0.2)', background: 'rgba(16,185,129,0.03)' }}>
+                      <div style={{ fontSize: 15, color: '#e2e8f0', fontWeight: 600, marginBottom: 4 }}>{compareResult.job_a?.title || compareA?.job_title}</div>
+                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>{compareResult.job_a?.company || compareA?.company}</div>
+                      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                        <div style={{ fontSize: 36, fontWeight: 800, color: '#10b981' }}>{compareResult.job_a?.match_result?.match_score ?? 0}%</div>
+                        <div style={{ fontSize: 12, color: '#475569' }}>匹配度</div>
+                      </div>
+                      <div style={{ marginBottom: 8 }}>
+                        <div style={{ fontSize: 12, color: '#10b981', fontWeight: 600, marginBottom: 4 }}>已匹配技能</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          {(compareResult.job_a?.match_result?.matched_skills ?? []).map((s: string, i: number) => (
+                            <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(16,185,129,0.15)', color: '#10b981' }}>{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: '#f87171', fontWeight: 600, marginBottom: 4 }}>缺失技能</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          {(compareResult.job_a?.match_result?.missing_skills ?? []).map((s: string, i: number) => (
+                            <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(248,113,113,0.1)', color: '#f87171' }}>{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Job B result */}
+                    <div style={{ padding: 16, borderRadius: 10, border: '1px solid rgba(129,140,248,0.2)', background: 'rgba(129,140,248,0.03)' }}>
+                      <div style={{ fontSize: 15, color: '#e2e8f0', fontWeight: 600, marginBottom: 4 }}>{compareResult.job_b?.title || compareB?.job_title}</div>
+                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>{compareResult.job_b?.company || compareB?.company}</div>
+                      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                        <div style={{ fontSize: 36, fontWeight: 800, color: '#818cf8' }}>{compareResult.job_b?.match_result?.match_score ?? 0}%</div>
+                        <div style={{ fontSize: 12, color: '#475569' }}>匹配度</div>
+                      </div>
+                      <div style={{ marginBottom: 8 }}>
+                        <div style={{ fontSize: 12, color: '#10b981', fontWeight: 600, marginBottom: 4 }}>已匹配技能</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          {(compareResult.job_b?.match_result?.matched_skills ?? []).map((s: string, i: number) => (
+                            <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(16,185,129,0.15)', color: '#10b981' }}>{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: '#f87171', fontWeight: 600, marginBottom: 4 }}>缺失技能</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          {(compareResult.job_b?.match_result?.missing_skills ?? []).map((s: string, i: number) => (
+                            <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(248,113,113,0.1)', color: '#f87171' }}>{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recommendation */}
+                  <div style={{ marginTop: 16, padding: 14, borderRadius: 10, background: 'rgba(0,0,0,0.2)', textAlign: 'center' }}>
+                    <div style={{ fontSize: 13, color: '#94a3b8' }}>
+                      {(compareResult.job_a?.match_result?.match_score ?? 0) > (compareResult.job_b?.match_result?.match_score ?? 0)
+                        ? <>🟢 <strong style={{ color: '#10b981' }}>{compareResult.job_a?.title}</strong> 匹配度更高，建议优先投递</>
+                        : (compareResult.job_b?.match_result?.match_score ?? 0) > (compareResult.job_a?.match_result?.match_score ?? 0)
+                        ? <>🟢 <strong style={{ color: '#818cf8' }}>{compareResult.job_b?.title}</strong> 匹配度更高，建议优先投递</>
+                        : <>两个岗位匹配度相同，可根据其他因素选择</>
+                      }
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
