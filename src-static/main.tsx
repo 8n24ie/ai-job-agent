@@ -327,40 +327,34 @@ function App() {
       <FloatingNav items={navItems} />
 
       {/* ── Top-right status bar ── */}
-      <div style={{ position: "fixed", top: 16, right: 16, zIndex: 9999, display: "flex", alignItems: "center", gap: 10 }}>
-        {/* LLM indicator */}
-        {apiOnline && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "6px 14px", fontSize: 12, color: llmInfo.available ? "#34d399" : "#fbbf24", border: `1px solid ${llmInfo.available ? "rgba(52,211,153,0.3)" : "rgba(251,191,36,0.3)"}` }}>
-            <Sparkles size={12} />
-            {llmInfo.available ? `LLM: ${llmInfo.model}` : "规则模式"}
-          </div>
-        )}
-
-        {/* API status */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "6px 14px", fontSize: 12, color: apiOnline ? "#34d399" : "#f87171", border: `1px solid ${apiOnline ? "rgba(52,211,153,0.3)" : "rgba(248,113,113,0.3)"}` }}>
-          {apiOnline ? <Wifi size={14} /> : <WifiOff size={14} />}
-          {apiOnline ? "API 已连接" : "离线模式"}
+      <div style={{ position: "fixed", top: 16, right: 16, zIndex: 9999, display: "flex", alignItems: "center", gap: 8 }}>
+        {/* API + LLM status */}
+        <div className="status-badge" style={{ position: "static" }}>
+          {apiOnline ? <Wifi size={13} /> : <WifiOff size={13} />}
+          <span style={{ color: apiOnline ? (llmInfo.available ? "var(--accent)" : "var(--amber)") : "var(--rose)" }}>
+            {apiOnline ? (llmInfo.available ? `LLM: ${llmInfo.model}` : "规则模式") : "离线"}
+          </span>
         </div>
 
         {/* User menu */}
         {currentUser ? (
           <div style={{ position: "relative" }}>
-            <button onClick={(e) => { e.stopPropagation(); setShowUserMenu(!showUserMenu); }} style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(129,140,248,0.15)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "6px 14px", fontSize: 13, color: "#a5b4fc", border: "1px solid rgba(129,140,248,0.3)", cursor: "pointer" }}>
-              <User size={14} /> {currentUser.username}
+            <button className="user-menu-btn" onClick={(e) => { e.stopPropagation(); setShowUserMenu(!showUserMenu); }}>
+              <User size={14} /> {currentUser.username} <ChevronDown size={14} />
             </button>
             {showUserMenu && (
-              <div style={{ position: "absolute", top: "100%", right: 0, marginTop: 8, background: "rgba(15,23,42,0.95)", backdropFilter: "blur(16px)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", padding: 8, minWidth: 160 }} onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => { setShowHistory(true); setShowUserMenu(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 14px", background: "none", border: "none", color: "#e2e8f0", cursor: "pointer", borderRadius: 8, fontSize: 13 }}>
+              <div className="user-dropdown" onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => { setShowHistory(true); setShowUserMenu(false); }}>
                   <Clock size={14} /> 分析历史
                 </button>
-                <button onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 14px", background: "none", border: "none", color: "#f87171", cursor: "pointer", borderRadius: 8, fontSize: 13 }}>
+                <button onClick={handleLogout}>
                   <LogOut size={14} /> 退出登录
                 </button>
               </div>
             )}
           </div>
         ) : (
-          <button onClick={() => setShowAuth(true)} style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(129,140,248,0.2)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "6px 14px", fontSize: 13, color: "#a5b4fc", border: "1px solid rgba(129,140,248,0.3)", cursor: "pointer" }}>
+          <button className="user-menu-btn" onClick={() => setShowAuth(true)}>
             <User size={14} /> 登录
           </button>
         )}
@@ -376,10 +370,10 @@ function App() {
       <section id="hero" className="hero section-shell">
         <div className="hero-copy">
           <motion.div className="badge" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-            <Sparkles size={16} /> {apiOnline ? (llmInfo.available ? `已接入 LLM (${llmInfo.model})` : "已接入 FastAPI 后端 · 规则模式") : "Aceternity-inspired static prototype"}
+            <Sparkles size={16} /> {apiOnline ? (llmInfo.available ? `已接入 LLM (${llmInfo.model})` : "已接入后端 · 规则模式") : "本地演示模式"}
           </motion.div>
           <h1>
-            <TextGenerateEffect words="AI 求职助手 Next Gen Dashboard" />
+            <TextGenerateEffect words="AI 求职助手" />
           </h1>
           <p className="hero-subtitle">{data.profile.tagline}</p>
           <div className="hero-actions">
@@ -504,7 +498,7 @@ function App() {
 
       {/* Features */}
       <section id="features" className="section-shell">
-        <LampHeader eyebrow="SYSTEM CAPABILITIES" title="从简历到投递策略的一体化 Agent" />
+        <LampHeader eyebrow="CAPABILITIES" title="从简历到投递策略的完整链路" />
         <div className="feature-grid">
           {displayFeatures.map((feature: string, i: number) => (
             <Spotlight key={feature} className="feature-card">
@@ -549,7 +543,7 @@ function App() {
 
       {/* Pipeline */}
       <section id="pipeline" className="section-shell">
-        <LampHeader eyebrow="AUTOMATION PIPELINE" title="静态演示的完整工作流" />
+        <LampHeader eyebrow="WORKFLOW" title="从简历到投递的完整工作流" />
         <div className="pipeline-grid">
           {displayPipeline.map((item: any, i: number) => (
             <motion.div className="pipeline-card" key={item.step} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
@@ -564,7 +558,7 @@ function App() {
 
       <footer className="footer section-shell">
         <ShieldCheck />
-        <p>{apiOnline ? (llmInfo.available ? `已接入 LLM (${llmInfo.model}) · ` : "已接入 FastAPI 后端 · 规则模式 · ") : "纯静态页面 · "}React + Vite + Framer Motion · Aceternity UI 风格组件复刻</p>
+        <p>{apiOnline ? (llmInfo.available ? `LLM: ${llmInfo.model} · ` : "后端已连接 · ") : ""}React + Vite + Framer Motion</p>
         <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
           <a className="ghost-btn" href="#" onClick={(e) => { e.preventDefault(); handleExportCSV(); }}><Download size={16} /> 导出 CSV</a>
           <a className="ghost-btn" href="#" onClick={(e) => { e.preventDefault(); handleExportExcel(); }}><Download size={16} /> 导出 Excel</a>
