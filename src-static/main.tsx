@@ -291,6 +291,10 @@ function App() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<any[]>([]);
+  const [expandedFavId, setExpandedFavId] = useState<number | null>(null);
+  const [favDeleteConfirmId, setFavDeleteConfirmId] = useState<number | null>(null);
+  const [favSearch, setFavSearch] = useState('');
+  const [favSort, setFavSort] = useState<'score' | 'priority'>('score');
   const [showChat, setShowChat] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState('');
@@ -473,7 +477,7 @@ function App() {
     } catch (e: any) { setError(e.message); }
   }
   async function handleRemoveFavorite(id: number) {
-    try { await apiRemoveFavorite(id); loadFavorites(); } catch (e: any) { setError(e.message); }
+    try { await apiRemoveFavorite(id); setFavDeleteConfirmId(null); loadFavorites(); } catch (e: any) { setError(e.message); }
   }
   async function handleSendChat() {
     if (!chatInput.trim() || !currentUser) return;
@@ -929,45 +933,123 @@ function App() {
       {/* Favorites Modal */}
       <AnimatePresence>
         {showFavorites && (
-          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFavorites(false)}>
-            <motion.div className="modal-content" style={{ maxWidth: 600, maxHeight: '80vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
-              <button className="modal-close" onClick={() => setShowFavorites(false)}><X size={18} /></button>
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowFavorites(false); setExpandedFavId(null); setFavDeleteConfirmId(null); setFavSearch(''); }}>
+            <motion.div className="modal-content" style={{ maxWidth: 640, maxHeight: '80vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => { setShowFavorites(false); setExpandedFavId(null); setFavDeleteConfirmId(null); setFavSearch(''); }}><X size={18} /></button>
               <h2 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 20 }}><Bookmark size={18} style={{ verticalAlign: -3, marginRight: 8 }} />岗位收藏</h2>
-              {favorites.length === 0 ? (
-                <p style={{ color: '#64748b', textAlign: 'center', padding: 40 }}>暂无收藏的岗位</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {favorites.map((f: any) => (
-                    <div key={f.id} style={{ padding: 16, borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                          <span style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{f.job_title}</span>
-                          <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: f.priority === '高' ? 'rgba(16,185,129,0.2)' : 'rgba(129,140,248,0.2)', color: f.priority === '高' ? '#10b981' : '#818cf8' }}>{f.priority}</span>
-                        </div>
-                        <p style={{ margin: 0, fontSize: 13, color: '#94a3b8' }}>{f.company} · {f.city} · {f.salary}</p>
-                        <span style={{ fontSize: 12, color: '#475569' }}>匹配度: {f.match_score}%</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                        <input
-                          type="checkbox"
-                          checked={compareA?.id === f.id || compareB?.id === f.id}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              if (!compareA) setCompareA(f);
-                              else if (!compareB) setCompareB(f);
-                            } else {
-                              if (compareA?.id === f.id) setCompareA(null);
-                              if (compareB?.id === f.id) setCompareB(null);
-                            }
-                          }}
-                          style={{ cursor: 'pointer' }}
-                        />
-                        <button onClick={() => handleRemoveFavorite(f.id)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 4 }}><Trash2 size={14} /></button>
-                      </div>
-                    </div>
-                  ))}
+
+              {/* Search + Sort */}
+              {favorites.length > 0 && (
+                <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                  <input value={favSearch} onChange={(e) => setFavSearch(e.target.value)} placeholder="搜索岗位/公司..." style={{ flex: 1, fontSize: 13, padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)', color: '#e2e8f0', outline: 'none' }} />
+                  <button onClick={() => setFavSort(favSort === 'score' ? 'priority' : 'score')} style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    {favSort === 'score' ? '按匹配度' : '按优先级'}
+                  </button>
                 </div>
               )}
+
+              {favorites.length === 0 ? (
+                <p style={{ color: '#64748b', textAlign: 'center', padding: 40 }}>暂无收藏的岗位<br /><span style={{ fontSize: 12, marginTop: 8, display: 'block' }}>分析结果中点击 ♡ 即可收藏</span></p>
+              ) : (() => {
+                const filtered = favorites
+                  .filter((f: any) => !favSearch || f.job_title?.toLowerCase().includes(favSearch.toLowerCase()) || f.company?.toLowerCase().includes(favSearch.toLowerCase()))
+                  .sort((a: any, b: any) => {
+                    if (favSort === 'score') return (parseFloat(b.match_score) || 0) - (parseFloat(a.match_score) || 0);
+                    const pOrder: Record<string, number> = { '高': 0, '中': 1, '低': 2 };
+                    return (pOrder[a.priority] ?? 1) - (pOrder[b.priority] ?? 1);
+                  });
+                if (filtered.length === 0) return <p style={{ color: '#64748b', textAlign: 'center', padding: 40 }}>未找到匹配的收藏</p>;
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {filtered.map((f: any) => (
+                      <div key={f.id} style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: expandedFavId === f.id ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)', transition: 'background 0.2s' }}>
+                        {/* Header row */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setExpandedFavId(expandedFavId === f.id ? null : f.id)}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
+                            <span style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{f.job_title}</span>
+                            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: f.priority === '高' ? 'rgba(16,185,129,0.2)' : f.priority === '中' ? 'rgba(129,140,248,0.15)' : 'rgba(248,113,113,0.1)', color: f.priority === '高' ? '#10b981' : f.priority === '中' ? '#818cf8' : '#f87171' }}>{f.priority ?? '中'}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 13, color: '#10b981', fontWeight: 600 }}>{f.match_score ?? 0}%</span>
+                            <ChevronDown size={14} style={{ color: '#64748b', transform: expandedFavId === f.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                          </div>
+                        </div>
+
+                        {/* Subtitle */}
+                        <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{f.company}{f.city ? ` · ${f.city}` : ''}{f.salary ? ` · ${f.salary}` : ''}</div>
+
+                        {/* Expanded details */}
+                        {expandedFavId === f.id && (
+                          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+                              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.2)' }}>
+                                <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>匹配度</div>
+                                <div style={{ fontSize: 16, color: '#10b981', fontWeight: 700 }}>{f.match_score ?? 0}%</div>
+                              </div>
+                              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.2)' }}>
+                                <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>优先级</div>
+                                <div style={{ fontSize: 16, color: f.priority === '高' ? '#10b981' : '#818cf8', fontWeight: 700 }}>{f.priority ?? '中'}</div>
+                              </div>
+                              {f.job_type && (
+                                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.2)' }}>
+                                  <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>类型</div>
+                                  <div style={{ fontSize: 13, color: '#94a3b8' }}>{f.job_type}</div>
+                                </div>
+                              )}
+                              {f.created_at && (
+                                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.2)' }}>
+                                  <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>收藏时间</div>
+                                  <div style={{ fontSize: 13, color: '#94a3b8' }}>{f.created_at}</div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Action buttons */}
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                              <span style={{ fontSize: 12, color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                <GitCompare size={13} /> 对比选择:
+                              </span>
+                              <input
+                                type="checkbox"
+                                checked={compareA?.id === f.id || compareB?.id === f.id}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    if (!compareA) setCompareA(f);
+                                    else if (!compareB) setCompareB(f);
+                                  } else {
+                                    if (compareA?.id === f.id) setCompareA(null);
+                                    if (compareB?.id === f.id) setCompareB(null);
+                                  }
+                                }}
+                                style={{ cursor: 'pointer' }}
+                              />
+                              {compareA?.id === f.id && <span style={{ fontSize: 11, color: '#10b981' }}>A</span>}
+                              {compareB?.id === f.id && <span style={{ fontSize: 11, color: '#818cf8' }}>B</span>}
+
+                              <div style={{ flex: 1 }} />
+
+                              {favDeleteConfirmId === f.id ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span style={{ fontSize: 12, color: '#f87171' }}>确认取消收藏？</span>
+                                  <button onClick={() => handleRemoveFavorite(f.id)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(248,113,113,0.15)', color: '#f87171', border: 'none', cursor: 'pointer' }}>确认</button>
+                                  <button onClick={() => setFavDeleteConfirmId(null)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: 'none', cursor: 'pointer' }}>取消</button>
+                                </div>
+                              ) : (
+                                <button onClick={() => setFavDeleteConfirmId(f.id)} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(248,113,113,0.1)', color: '#f87171', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                  <Trash2 size={13} /> 取消收藏
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <div style={{ fontSize: 12, color: '#475569', textAlign: 'center', padding: '8px 0' }}>
+                      共 {filtered.length} 个收藏{favSearch ? ` · 搜索: "${favSearch}"` : ''}
+                    </div>
+                  </div>
+                );
+              })()}
             </motion.div>
           </motion.div>
         )}
