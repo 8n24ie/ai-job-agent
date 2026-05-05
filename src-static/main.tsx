@@ -23,10 +23,9 @@ import "./styles.css";
 
 const navItems = [
   { name: "首页", href: "#hero" },
-  { name: "上传分析", href: "#upload" },
-  { name: "能力", href: "#features" },
-  { name: "岗位", href: "#jobs" },
-  { name: "流程", href: "#pipeline" },
+  { name: "功能", href: "#features" },
+  { name: "使用流程", href: "#pipeline" },
+  { name: "开始分析", href: "#upload" },
 ];
 
 function MetricCard({ metric, index }: { metric: { label: string; value: string; delta: string; tone: string }; index: number }) {
@@ -83,7 +82,7 @@ function AuthModal({ onClose, onAuth }: { onClose: () => void; onAuth: (user: an
         <button className="modal-close" onClick={onClose}><X size={18} /></button>
         <h2 style={{ margin: "0 0 8px", color: "#e2e8f0", fontSize: 22 }}>{isLogin ? "登录" : "注册"}</h2>
         <p style={{ margin: "0 0 24px", color: "#64748b", fontSize: 13 }}>
-          {isLogin ? "登录后可保存简历和分析历史" : "创建账号，开始你的 AI 求职之旅"}
+          {isLogin ? "登录后可保存简历和分析记录" : "注册账号，开启 AI 求职之旅"}
         </p>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -591,20 +590,25 @@ function App() {
       <section id="hero" className="hero section-shell">
         <div className="hero-copy">
           <motion.div className="badge" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-            <Sparkles size={16} /> {apiOnline ? (llmInfo.available ? `已接入 LLM (${llmInfo.model})` : "已接入后端 · 规则模式") : "本地演示模式"}
+            <Sparkles size={16} /> AI 驱动的智能求职平台
           </motion.div>
           <h1>
-            <TextGenerateEffect words="AI 求职助手" />
+            <TextGenerateEffect words="智聘 AI" />
           </h1>
           <p className="hero-subtitle">{data.profile.tagline}</p>
           <div className="hero-actions">
-            <a className="primary-btn" href="#jobs">查看岗位排名 <ArrowRight size={18} /></a>
-            <a className="ghost-btn" href="#upload"><Upload size={18} /> 上传分析</a>
+            <a className="primary-btn" href="#upload">免费开始分析 <ArrowRight size={18} /></a>
+            <a className="ghost-btn" href="#features"><Sparkles size={18} /> 了解功能</a>
+          </div>
+          <div style={{ display: "flex", gap: 24, marginTop: 32, fontSize: 13, color: "#64748b" }}>
+            <span>✓ 免费使用</span>
+            <span>✓ 支持 PDF/Word</span>
+            <span>✓ AI 深度分析</span>
           </div>
         </div>
 
         <motion.div className="hero-panel" initial={{ opacity: 0, scale: 0.92, rotateX: 8 }} animate={{ opacity: 1, scale: 1, rotateX: 0 }} transition={{ duration: 0.8 }}>
-          <div className="panel-top"><span /> Live Match Engine <em>v4 LLM</em></div>
+          <div className="panel-top"><span /> AI Resume Engine <em>v5 LLM</em></div>
           <div className="radar-wrap"><Radar className="radar-icon" size={180} /><div className="scan-line" /></div>
           <div className="profile-line"><BrainCircuit /> {data.profile.name} · {data.profile.role}</div>
         </motion.div>
@@ -612,7 +616,7 @@ function App() {
 
       {/* Upload Section */}
       <section id="upload" className="section-shell" style={{ maxWidth: 900, margin: "0 auto" }}>
-        <LampHeader eyebrow="ANALYSIS ENGINE" title="上传 JD 数据 + 简历进行 AI 分析" />
+        <LampHeader eyebrow="START NOW" title="上传简历，开始 AI 分析" />
 
         <Spotlight className="feature-card" style={{ padding: 32, marginBottom: 24 }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
@@ -726,14 +730,14 @@ function App() {
 
       {/* Features */}
       <section id="features" className="section-shell">
-        <LampHeader eyebrow="CAPABILITIES" title="从简历到投递策略的完整链路" />
+        <LampHeader eyebrow="FEATURES" title="AI 帮你从简历到 offer" />
         <div className="feature-grid">
           {displayFeatures.map((feature: string, i: number) => (
             <Spotlight key={feature} className="feature-card">
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
                 <Zap size={22} />
                 <h3>{feature}</h3>
-                <p>{llmInfo.available ? "LLM 增强模式，分析更精准。" : apiOnline ? "已接入后端 API，规则模式运行。" : "基于模拟 JSON 数据展示。"}</p>
+                <p>{"AI 深度分析，帮你快速提升求职竞争力。"}</p>
               </motion.div>
             </Spotlight>
           ))}
@@ -743,7 +747,7 @@ function App() {
       {/* Jobs */}
       <section id="jobs" className="section-shell split-section">
         <div>
-          <LampHeader eyebrow="JOB INTELLIGENCE" title="岗位优先级排名" />
+          <LampHeader eyebrow="JOB MATCH" title="智能岗位匹配排名" />
           <div className="job-list">
             {displayJobs.map((job: any, i: number) => (
               <motion.article className="job-card" key={job.title + i} initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}>
@@ -778,7 +782,7 @@ function App() {
 
       {/* Pipeline */}
       <section id="pipeline" className="section-shell">
-        <LampHeader eyebrow="WORKFLOW" title="从简历到投递的完整工作流" />
+        <LampHeader eyebrow="HOW IT WORKS" title="4 步完成求职准备" />
         <div className="pipeline-grid">
           {displayPipeline.map((item: any, i: number) => (
             <motion.div className="pipeline-card" key={item.step} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
@@ -793,10 +797,11 @@ function App() {
 
       <footer className="footer section-shell">
         <ShieldCheck />
-        <p>{apiOnline ? (llmInfo.available ? `LLM: ${llmInfo.model} · ` : "后端已连接 · ") : ""}React + Vite + Framer Motion</p>
-        <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-          <a className="ghost-btn" href="#" onClick={(e) => { e.preventDefault(); handleExportCSV(); }}><Download size={16} /> 导出 CSV</a>
-          <a className="ghost-btn" href="#" onClick={(e) => { e.preventDefault(); handleExportExcel(); }}><Download size={16} /> 导出 Excel</a>
+        <p style={{ fontSize: 16, fontWeight: 600, color: "#e2e8f0", margin: "0 0 4px" }}>智聘 AI</p>
+        <p style={{ margin: "0 0 12px" }}>AI 驱动的智能求职平台 · 简历优化 · 岗位匹配 · 面试准备</p>
+        <p style={{ fontSize: 12, color: "#475569" }}>{apiOnline ? (llmInfo.available ? `Powered by ${llmInfo.model}` : "后端已连接") : "本地演示模式"} · React + Vite + FastAPI</p>
+        <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+          <a className="ghost-btn" href="#upload"><ArrowRight size={16} /> 开始分析</a>
         </div>
       </footer>
 
@@ -835,7 +840,7 @@ function App() {
           }}
         >
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0, fontSize: 16, color: 'var(--heading)' }}><MessageSquare size={16} style={{ verticalAlign: -2, marginRight: 8 }} />AI 求职助手</h3>
+            <h3 style={{ margin: 0, fontSize: 16, color: 'var(--heading)' }}><MessageSquare size={16} style={{ verticalAlign: -2, marginRight: 8 }} />智聘 AI 助手</h3>
             <button onClick={() => setShowChat(false)} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}><X size={18} /></button>
           </div>
           <div style={{ flex: 1, overflow: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
