@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.venv/
+__pycache__/
+*.sqlite3
+.env
+*.pyc
+.pytest_cache/
+test_api_import.py
+test_batch_api.py
+test_batch_api2.py
+check_deps.py
+check_env.py

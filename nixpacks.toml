@@ -1,0 +1,13 @@
+[phases.build]
+cmds = [
+  "npm install --registry=https://registry.npmmirror.com",
+  "npm run build"
+]
+
+[phases.install]
+cmds = [
+  "pip install -r requirements.txt"
+]
+
+[start]
+cmd = "python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT"
