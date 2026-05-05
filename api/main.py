@@ -238,6 +238,35 @@ async def load_user_resume(user: dict = Depends(_require_user)):
     return {"resume_text": info.get("resume_text", "") if info else ""}
 
 
+@app.post("/api/upload/resume")
+async def upload_resume_file(file: UploadFile = File(...)):
+    """Parse PDF / DOCX / TXT resume files and return extracted text."""
+    content = await file.read()
+    filename = (file.filename or "").lower()
+
+    try:
+        if filename.endswith(".pdf"):
+            import PyPDF2
+            reader = PyPDF2.PdfReader(io.BytesIO(content))
+            pages = [page.extract_text() or "" for page in reader.pages]
+            text = "\n".join(pages).strip()
+        elif filename.endswith((".docx", ".doc")):
+            import docx
+            doc = docx.Document(io.BytesIO(content))
+            text = "\n".join(para.text for para in doc.paragraphs).strip()
+        elif filename.endswith((".txt", ".md")):
+            text = content.decode("utf-8-sig", errors="ignore").strip()
+        else:
+            return {"error": f"不支持的文件格式: {filename}。请上传 PDF、DOCX 或 TXT 文件。"}
+    except Exception as e:
+        return {"error": f"文件解析失败: {e}"}
+
+    if not text:
+        return {"error": "文件内容为空，请检查文件。"}
+
+    return {"resume_text": text, "filename": file.filename, "chars": len(text)}
+
+
 # ── Analysis history ────────────────────────────────────────────────────────
 
 @app.get("/api/history")

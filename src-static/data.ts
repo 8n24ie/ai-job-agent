@@ -72,6 +72,14 @@ export async function apiLoadResume() {
   return res.json();
 }
 
+export async function apiUploadResume(file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch("/api/upload/resume", { method: "POST", body: form });
+  if (!res.ok) throw new Error("上传失败");
+  return res.json();
+}
+
 export async function apiGetHistory() {
   const res = await fetch("/api/history", { headers: authHeaders() });
   if (!res.ok) return [];

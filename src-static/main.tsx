@@ -14,7 +14,7 @@ import {
   dashboardData, fetchBatchAnalysis, fetchSingleAnalysis,
   downloadExportCSV, downloadExportExcel,
   getToken, setToken, getUser, setUser, logout,
-  apiRegister, apiLogin, apiSaveResume, apiLoadResume, apiGetHistory, apiDeleteHistory, apiGetHistoryDetail,
+  apiRegister, apiLogin, apiSaveResume, apiLoadResume, apiUploadResume, apiGetHistory, apiDeleteHistory, apiGetHistoryDetail,
   apiListResumes, apiCreateResume, apiDeleteResume, apiSetDefaultResume, apiUpdateResume,
   apiListFavorites, apiAddFavorite, apiRemoveFavorite,
   apiSendChat, apiGetChatHistory, apiCompareJobs,
@@ -277,6 +277,7 @@ function App() {
   const [jdText, setJdText] = useState("");
   const [mode, setMode] = useState<"batch" | "single">("batch");
   const fileRef = useRef<HTMLInputElement>(null);
+  const resumeFileRef = useRef<HTMLInputElement>(null);
 
   // Auth state
   const [currentUser, setCurrentUser] = useState<any>(getUser());
@@ -346,6 +347,19 @@ function App() {
     logout();
     setCurrentUser(null);
     setShowUserMenu(false);
+  }
+
+  async function handleResumeFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    setLoading(true);
+    try {
+      const result = await apiUploadResume(file);
+      if (result.error) { setError(result.error); return; }
+      setResumeText(result.resume_text);
+    } catch (err: any) { setError(err.message); }
+    finally { setLoading(false); if (resumeFileRef.current) resumeFileRef.current.value = ""; }
   }
 
   async function handleSaveResume() {
@@ -620,12 +634,19 @@ function App() {
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                 <label style={{ fontSize: 13, color: "#94a3b8" }}>简历内容 *</label>
-                {currentUser && (
-                  <button onClick={handleSaveResume} style={{ fontSize: 12, color: "#818cf8", background: "none", border: "none", cursor: "pointer" }}>
-                    保存到云端
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input ref={resumeFileRef} type="file" accept=".pdf,.docx,.doc,.txt" style={{ display: "none" }} onChange={handleResumeFileUpload} />
+                  <button onClick={() => resumeFileRef.current?.click()} style={{ fontSize: 12, color: "#10b981", background: "none", border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <Upload size={12} /> 上传简历文件
                   </button>
-                )}
+                  {currentUser && (
+                    <button onClick={handleSaveResume} style={{ fontSize: 12, color: "#818cf8", background: "none", border: "none", cursor: "pointer" }}>
+                      保存到云端
+                    </button>
+                  )}
+                </div>
               </div>
+              <div style={{ fontSize: 11, color: "#475569", marginBottom: 6 }}>支持 PDF、DOCX、TXT 格式</div>
               <textarea
                 value={resumeText}
                 onChange={(e) => setResumeText(e.target.value)}
