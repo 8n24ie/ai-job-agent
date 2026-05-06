@@ -20,6 +20,7 @@ import {
   apiSendChat, apiGetChatHistory, apiCompareJobs,
 } from "./data";
 import "./styles.css";
+import "./bento.css";
 
 const navItems = [
   { name: "首页", href: "#hero" },
@@ -586,31 +587,25 @@ function App() {
         {showHistory && <HistoryPanel onClose={() => setShowHistory(false)} onLoadResult={(data) => setApiData(data)} />}
       </AnimatePresence>
 
-      {/* Hero */}
-      <section id="hero" className="hero section-shell">
-        <div className="hero-copy">
-          <motion.div className="badge" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-            <Sparkles size={16} /> AI 驱动的智能求职平台
-          </motion.div>
-          <h1>
-            <TextGenerateEffect words="智聘 AI" />
-          </h1>
-          <p className="hero-subtitle">{data.profile.tagline}</p>
-          <div className="hero-actions">
-            <a className="primary-btn" href="#upload">免费开始分析 <ArrowRight size={18} /></a>
-            <a className="ghost-btn" href="#features"><Sparkles size={18} /> 了解功能</a>
-          </div>
-          <div style={{ display: "flex", gap: 24, marginTop: 32, fontSize: 13, color: "#64748b" }}>
-            <span>✓ 免费使用</span>
-            <span>✓ 支持 PDF/Word</span>
-            <span>✓ AI 深度分析</span>
-          </div>
-        </div>
-
-        <motion.div className="hero-panel" initial={{ opacity: 0, scale: 0.92, rotateX: 8 }} animate={{ opacity: 1, scale: 1, rotateX: 0 }} transition={{ duration: 0.8 }}>
-          <div className="panel-top"><span /> AI Resume Engine <em>v5 LLM</em></div>
-          <div className="radar-wrap"><Radar className="radar-icon" size={180} /><div className="scan-line" /></div>
-          <div className="profile-line"><BrainCircuit /> {data.profile.name} · {data.profile.role}</div>
+      {/* Hero — Ultra Clean */}
+      <section id="hero" className="hero-section">
+        <motion.div className="hero-badge" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <Sparkles size={14} /> AI 驱动的智能求职平台
+        </motion.div>
+        <motion.h1 className="hero-title" initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
+          智聘 AI
+        </motion.h1>
+        <motion.p className="hero-sub" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.6 }}>
+          上传简历，AI 帮你优化、匹配岗位、准备面试。从简历到 offer 的完整智能链路。
+        </motion.p>
+        <motion.div className="hero-ctas" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.6 }}>
+          <a className="btn-primary" href="#upload">免费开始分析 <ArrowRight size={18} /></a>
+          <a className="btn-ghost" href="#features"><Sparkles size={16} /> 了解功能</a>
+        </motion.div>
+        <motion.div className="hero-checks" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+          <span>✓ 免费使用</span>
+          <span>✓ 支持 PDF/Word</span>
+          <span>✓ AI 深度分析</span>
         </motion.div>
       </section>
 
@@ -728,19 +723,160 @@ function App() {
         </section>
       )}
 
-      {/* Features */}
-      <section id="features" className="section-shell">
-        <LampHeader eyebrow="FEATURES" title="AI 帮你从简历到 offer" />
-        <div className="feature-grid">
-          {displayFeatures.map((feature: string, i: number) => (
-            <Spotlight key={feature} className="feature-card">
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                <Zap size={22} />
-                <h3>{feature}</h3>
-                <p>{"AI 深度分析，帮你快速提升求职竞争力。"}</p>
-              </motion.div>
-            </Spotlight>
-          ))}
+      {/* Bento Grid */}
+      <section id="features" className="bento-section">
+        <div className="bento-header">
+          <h2>AI 帮你从简历到 offer</h2>
+        </div>
+        <div className="bento-grid">
+          {/* 1. Resume Score — Large 2x2 */}
+          <motion.div
+            className="bento-card large"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - r.top}px`);
+            }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="bento-icon"><Gauge size={22} /></div>
+            <h3>AI 简历评分</h3>
+            <p>多维度评估简历质量，指出具体改进方向。深度分析教育背景、工作经历、项目经验、技能匹配度。</p>
+            <div className="match-ring">92</div>
+          </motion.div>
+
+          {/* 2. Optimization — Wide 2x1 */}
+          <motion.div
+            className="bento-card wide"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - r.top}px`);
+            }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.05 }}
+          >
+            <div className="bento-icon"><Edit2 size={22} /></div>
+            <h3>智能优化建议</h3>
+            <div className="text-compare">
+              <div className="before">负责公司项目的开发工作，完成了多个功能模块...</div>
+              <div className="after">主导用户增长系统架构设计，DAU 提升 40%，获公司年度技术奖...</div>
+            </div>
+          </motion.div>
+
+          {/* 3. Job Match — 1x1 */}
+          <motion.div
+            className="bento-card"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - r.top}px`);
+            }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <div className="bento-icon"><Layers size={22} /></div>
+            <h3>岗位匹配分析</h3>
+            <p>逐条比对 JD 要求与简历内容，精确计算匹配度</p>
+            <div className="bento-metric">95<small>%</small></div>
+          </motion.div>
+
+          {/* 4. Skill Gap — 1x1 */}
+          <motion.div
+            className="bento-card"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - r.top}px`);
+            }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.15 }}
+          >
+            <div className="bento-icon"><Radar size={22} /></div>
+            <h3>缺失技能诊断</h3>
+            <p>发现简历中缺失的关键技能</p>
+            <div className="radar-dots">
+              {['Python', 'SQL', 'AWS', 'Docker', 'React', 'K8s', 'Go', 'LLM'].map((s, i) => (
+                <div key={s} className={`radar-dot ${i >= 4 ? 'gap' : ''}`} title={s} />
+              ))}
+            </div>
+          </motion.div>
+
+          {/* 5. Interview — Wide 2x1 */}
+          <motion.div
+            className="bento-card wide"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - r.top}px`);
+            }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="bento-icon"><MessageSquare size={22} /></div>
+            <h3>面试题生成</h3>
+            <div className="question-stack">
+              {['请介绍一下你最有挑战性的项目？', '你如何处理团队中的技术分歧？', '为什么选择我们公司？'].map((q, i) => (
+                <div className="q-item" key={i}><span className="q-num">{i + 1}</span>{q}</div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* 6. Batch — 1x1 */}
+          <motion.div
+            className="bento-card"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - r.top}px`);
+            }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.25 }}
+          >
+            <div className="bento-icon"><Zap size={22} /></div>
+            <h3>批量分析</h3>
+            <p>一次分析多个岗位</p>
+            <div className="batch-bars">
+              {[85, 62, 45, 78, 30].map((w, i) => (
+                <div className="batch-bar" key={i}><i style={{ width: `${w}%` }} /></div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* 7. Export — 1x1 */}
+          <motion.div
+            className="bento-card"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - r.top}px`);
+            }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="bento-icon"><Download size={22} /></div>
+            <h3>一键导出</h3>
+            <p>分析报告导出为文件</p>
+            <div className="format-pills">
+              <span className="format-pill">CSV</span>
+              <span className="format-pill">Excel</span>
+              <span className="format-pill">PDF</span>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -780,16 +916,29 @@ function App() {
         </Spotlight>
       </section>
 
-      {/* Pipeline */}
-      <section id="pipeline" className="section-shell">
-        <LampHeader eyebrow="HOW IT WORKS" title="4 步完成求职准备" />
-        <div className="pipeline-grid">
-          {displayPipeline.map((item: any, i: number) => (
-            <motion.div className="pipeline-card" key={item.step} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-              <span className="step-index">0{i + 1}</span>
-              <h3>{item.step}</h3>
-              <p>{item.desc}</p>
-              <div className="progress"><motion.span initial={{ width: 0 }} whileInView={{ width: `${item.progress}%` }} viewport={{ once: true }} /></div>
+      {/* Pipeline Steps */}
+      <section id="pipeline" className="pipeline-section">
+        <div className="pipeline-header">
+          <h2>4 步完成求职准备</h2>
+        </div>
+        <div className="pipeline-steps">
+          {[
+            { num: '01', title: '上传简历', desc: '支持 PDF、Word 或直接粘贴文本，AI 自动解析结构化数据' },
+            { num: '02', title: 'AI 诊断', desc: '多维度深度分析简历质量，发现薄弱环节和优化空间' },
+            { num: '03', title: '岗位匹配', desc: '智能比对 JD 要求，精确计算匹配度并推荐优先岗位' },
+            { num: '04', title: '面试准备', desc: '生成针对性面试问题和答题策略，助你从容应对' },
+          ].map((step, i) => (
+            <motion.div
+              className="step-card"
+              key={step.num}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
+            >
+              <div className="step-num">{step.num}</div>
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
             </motion.div>
           ))}
         </div>
