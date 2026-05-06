@@ -81,7 +81,7 @@ function AuthModal({ onClose, onAuth }: { onClose: () => void; onAuth: (user: an
     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
       <motion.div className="modal-content" initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}><X size={18} /></button>
-        <h2 style={{ margin: "0 0 8px", color: "#e2e8f0", fontSize: 22 }}>{isLogin ? "登录" : "注册"}</h2>
+        <h2 style={{ margin: "0 0 8px", color: "#1d1d1f", fontSize: 22 }}>{isLogin ? "登录" : "注册"}</h2>
         <p style={{ margin: "0 0 24px", color: "#64748b", fontSize: 13 }}>
           {isLogin ? "登录后可保存简历和分析记录" : "注册账号，开启 AI 求职之旅"}
         </p>
@@ -93,7 +93,7 @@ function AuthModal({ onClose, onAuth }: { onClose: () => void; onAuth: (user: an
               value={username} onChange={(e) => setUsername(e.target.value)}
               placeholder="输入用户名"
               required minLength={2}
-              style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#e2e8f0", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+              style={{ width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,0,0,0.08)", background: "#f5f5f7", color: "#1d1d1f", fontSize: 14, outline: "none", boxSizing: "border-box" }}
             />
           </div>
           <div>
@@ -104,7 +104,7 @@ function AuthModal({ onClose, onAuth }: { onClose: () => void; onAuth: (user: an
                 value={password} onChange={(e) => setPassword(e.target.value)}
                 placeholder="输入密码"
                 required minLength={4}
-                style={{ width: "100%", padding: "10px 40px 10px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#e2e8f0", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: "10px 40px 10px 14px", borderRadius: 8, border: "1px solid rgba(0,0,0,0.08)", background: "#f5f5f7", color: "#1d1d1f", fontSize: 14, outline: "none", boxSizing: "border-box" }}
               />
               <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#64748b", cursor: "pointer", padding: 4 }}>
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -197,7 +197,7 @@ function HistoryPanel({ onClose, onLoadResult }: { onClose: () => void; onLoadRe
     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
       <motion.div className="modal-content" style={{ maxWidth: 640, maxHeight: "80vh", overflowY: "auto" }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}><X size={18} /></button>
-        <h2 style={{ margin: "0 0 16px", color: "#e2e8f0", fontSize: 20 }}><Clock size={18} style={{ verticalAlign: -3, marginRight: 8 }} />分析历史</h2>
+        <h2 style={{ margin: "0 0 16px", color: "#1d1d1f", fontSize: 20 }}><Clock size={18} style={{ verticalAlign: -3, marginRight: 8 }} />分析历史</h2>
 
         {loading ? (
           <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}><Loader2 size={24} className="animate-spin" /></div>
@@ -206,10 +206,10 @@ function HistoryPanel({ onClose, onLoadResult }: { onClose: () => void; onLoadRe
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {history.map((h: any) => (
-              <div key={h.id} style={{ padding: 14, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: expandedId === h.id ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.02)", transition: "background 0.2s" }}>
+              <div key={h.id} style={{ padding: 14, borderRadius: 10, border: "1px solid rgba(0,0,0,0.06)", background: expandedId === h.id ? "rgba(0,0,0,0.03)" : "rgba(0,0,0,0.02)", transition: "background 0.2s" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} onClick={() => setExpandedId(expandedId === h.id ? null : h.id)}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ fontSize: 13, padding: "3px 10px", borderRadius: 6, background: h.mode === "batch" ? "rgba(129,140,248,0.15)" : "rgba(255,255,255,0.06)", color: h.mode === "batch" ? "#818cf8" : "rgba(255,255,255,0.6)", fontWeight: 600 }}>
+                    <span style={{ fontSize: 13, padding: "3px 10px", borderRadius: 6, background: h.mode === "batch" ? "rgba(129,140,248,0.15)" : "rgba(0,0,0,0.04)", color: h.mode === "batch" ? "#818cf8" : "#86868b", fontWeight: 600 }}>
                       {h.mode === "batch" ? "批量" : "单条"}
                     </span>
                     <span style={{ fontSize: 13, color: "#94a3b8" }}>{h.created_at}</span>
@@ -226,12 +226,12 @@ function HistoryPanel({ onClose, onLoadResult }: { onClose: () => void; onLoadRe
                 </div>
 
                 {expandedId === h.id && (
-                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(0,0,0,0.04)" }}>
                     {h.mode === "batch" && h.result_data?.rows && (
                       <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 10 }}>
                         <div style={{ marginBottom: 8 }}>高优 {h.result_data.stats?.high} · 中优 {h.result_data.stats?.mid} · 低优 {h.result_data.stats?.low}</div>
                         {h.result_data.rows.slice(0, 3).map((r: any, i: number) => (
-                          <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                          <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid rgba(0,0,0,0.04)" }}>
                             {r.job_title} — {r.match_score}分 — {r.priority}
                           </div>
                         ))}
@@ -247,7 +247,7 @@ function HistoryPanel({ onClose, onLoadResult }: { onClose: () => void; onLoadRe
                       </div>
                     )}
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={() => handleLoad(h)} style={{ fontSize: 12, padding: "6px 14px", borderRadius: 6, background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)", border: "none", cursor: "pointer" }}>
+                      <button onClick={() => handleLoad(h)} style={{ fontSize: 12, padding: "6px 14px", borderRadius: 6, background: "rgba(0,0,0,0.04)", color: "#86868b", border: "none", cursor: "pointer" }}>
                         重新加载
                       </button>
                       <button onClick={() => handleDelete(h.id)} style={{ fontSize: 12, padding: "6px 14px", borderRadius: 6, background: "rgba(248,113,113,0.1)", color: "#f87171", border: "none", cursor: "pointer" }}>
@@ -617,13 +617,13 @@ function App() {
           <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
             <button
               onClick={() => setMode("batch")}
-              style={{ padding: "8px 20px", borderRadius: 8, border: mode === "batch" ? "1px solid #818cf8" : "1px solid rgba(255,255,255,0.1)", background: mode === "batch" ? "rgba(129,140,248,0.15)" : "transparent", color: "#e2e8f0", cursor: "pointer", fontSize: 14 }}
+              style={{ padding: "8px 20px", borderRadius: 8, border: mode === "batch" ? "1px solid #818cf8" : "1px solid rgba(0,0,0,0.08)", background: mode === "batch" ? "rgba(129,140,248,0.15)" : "transparent", color: "#1d1d1f", cursor: "pointer", fontSize: 14 }}
             >
               <Upload size={14} style={{ verticalAlign: -2, marginRight: 4 }} /> 批量 CSV 分析
             </button>
             <button
               onClick={() => setMode("single")}
-              style={{ padding: "8px 20px", borderRadius: 8, border: mode === "single" ? "1px solid #818cf8" : "1px solid rgba(255,255,255,0.1)", background: mode === "single" ? "rgba(129,140,248,0.15)" : "transparent", color: "#e2e8f0", cursor: "pointer", fontSize: 14 }}
+              style={{ padding: "8px 20px", borderRadius: 8, border: mode === "single" ? "1px solid #818cf8" : "1px solid rgba(0,0,0,0.08)", background: mode === "single" ? "rgba(129,140,248,0.15)" : "transparent", color: "#1d1d1f", cursor: "pointer", fontSize: 14 }}
             >
               <FileText size={14} style={{ verticalAlign: -2, marginRight: 4 }} /> 单条 JD 分析
             </button>
@@ -635,7 +635,7 @@ function App() {
                 <label style={{ fontSize: 13, color: "#94a3b8" }}>简历内容 *</label>
                 <div style={{ display: "flex", gap: 8 }}>
                   <input ref={resumeFileRef} type="file" accept=".pdf,.docx,.doc,.txt" style={{ display: "none" }} onChange={handleResumeFileUpload} />
-                  <button onClick={() => resumeFileRef.current?.click()} style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", background: "none", border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <button onClick={() => resumeFileRef.current?.click()} style={{ fontSize: 12, color: "#86868b", background: "none", border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
                     <Upload size={12} /> 上传简历文件
                   </button>
                   {currentUser && (
@@ -651,7 +651,7 @@ function App() {
                 onChange={(e) => setResumeText(e.target.value)}
                 placeholder="粘贴你的简历文本..."
                 rows={4}
-                style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#e2e8f0", fontSize: 14, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid rgba(0,0,0,0.08)", background: "#f5f5f7", color: "#1d1d1f", fontSize: 14, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
               />
             </div>
 
@@ -668,7 +668,7 @@ function App() {
                   onChange={(e) => setJdText(e.target.value)}
                   placeholder="粘贴 JD 文本..."
                   rows={4}
-                  style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#e2e8f0", fontSize: 14, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid rgba(0,0,0,0.08)", background: "#f5f5f7", color: "#1d1d1f", fontSize: 14, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
                 />
               </div>
             )}
@@ -714,7 +714,7 @@ function App() {
           <Spotlight className="feature-card" style={{ padding: 32 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <Newspaper size={22} style={{ color: "#818cf8" }} />
-              <h3 style={{ margin: 0, fontSize: 18, color: "#e2e8f0" }}>分析报告摘要</h3>
+              <h3 style={{ margin: 0, fontSize: 18, color: "#1d1d1f" }}>分析报告摘要</h3>
             </div>
             <div style={{ color: "#cbd5e1", fontSize: 14, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
               {typeof apiData.report === "string" ? apiData.report : JSON.stringify(apiData.report, null, 2)}
@@ -946,7 +946,7 @@ function App() {
 
       <footer className="footer section-shell">
         <ShieldCheck />
-        <p style={{ fontSize: 16, fontWeight: 600, color: "#e2e8f0", margin: "0 0 4px" }}>智聘 AI</p>
+        <p style={{ fontSize: 16, fontWeight: 600, color: "#1d1d1f", margin: "0 0 4px" }}>智聘 AI</p>
         <p style={{ margin: "0 0 12px" }}>AI 驱动的智能求职平台 · 简历优化 · 岗位匹配 · 面试准备</p>
         <p style={{ fontSize: 12, color: "#475569" }}>{apiOnline ? (llmInfo.available ? `Powered by ${llmInfo.model}` : "后端已连接") : "本地演示模式"} · React + Vite + FastAPI</p>
         <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
@@ -961,10 +961,10 @@ function App() {
           style={{
             position: 'fixed', bottom: 24, right: 24, zIndex: 9998,
             width: 56, height: 56, borderRadius: '50%',
-            background: 'var(--accent)', color: '#0a0a0f',
+            background: 'var(--accent)', color: '#fff',
             border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 24px rgba(255,255,255,0.15)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
             transition: 'transform 0.2s cubic-bezier(0.34,1.56,0.64,1)',
           }}
           onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
@@ -1002,14 +1002,14 @@ function App() {
               <div key={i} style={{
                 alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                 maxWidth: '80%', padding: '10px 14px', borderRadius: 14,
-                background: msg.role === 'user' ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.05)',
+                background: msg.role === 'user' ? 'rgba(0,0,0,0.04)' : 'rgba(0,0,0,0.03)',
                 color: 'var(--text)', fontSize: 14, lineHeight: 1.6,
               }}>
                 {msg.content}
               </div>
             ))}
             {chatLoading && (
-              <div style={{ alignSelf: 'flex-start', padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', color: 'var(--muted)', fontSize: 14 }}>思考中...</div>
+              <div style={{ alignSelf: 'flex-start', padding: '10px 14px', borderRadius: 14, background: 'rgba(0,0,0,0.03)', color: 'var(--muted)', fontSize: 14 }}>思考中...</div>
             )}
           </div>
           <div style={{ padding: 12, borderTop: '1px solid var(--line)', display: 'flex', gap: 8 }}>
@@ -1029,7 +1029,7 @@ function App() {
               disabled={chatLoading}
               style={{
                 width: 40, height: 40, borderRadius: 12,
-                background: 'var(--accent)', color: '#0a0a0f',
+                background: 'var(--accent)', color: '#fff',
                 border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
@@ -1046,7 +1046,7 @@ function App() {
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowResumes(false); setExpandedResumeId(null); setRenamingId(null); setDeleteConfirmId(null); }}>
             <motion.div className="modal-content" style={{ maxWidth: 640, maxHeight: '80vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
               <button className="modal-close" onClick={() => { setShowResumes(false); setExpandedResumeId(null); setRenamingId(null); setDeleteConfirmId(null); }}><X size={18} /></button>
-              <h2 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 20 }}><Layers size={18} style={{ verticalAlign: -3, marginRight: 8 }} />简历版本管理</h2>
+              <h2 style={{ margin: '0 0 16px', color: '#1d1d1f', fontSize: 20 }}><Layers size={18} style={{ verticalAlign: -3, marginRight: 8 }} />简历版本管理</h2>
               <button onClick={handleSaveResumeVersion} className="primary-btn" style={{ marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 <Plus size={14} /> 保存当前简历为新版本
               </button>
@@ -1055,20 +1055,20 @@ function App() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {resumes.map((r: any) => (
-                    <div key={r.id} style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: expandedResumeId === r.id ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)', transition: 'background 0.2s' }}>
+                    <div key={r.id} style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)', background: expandedResumeId === r.id ? 'rgba(0,0,0,0.03)' : 'rgba(0,0,0,0.02)', transition: 'background 0.2s' }}>
                       {/* Header row */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setExpandedResumeId(expandedResumeId === r.id ? null : r.id)}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
                           {renamingId === r.id ? (
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={(e) => e.stopPropagation()}>
-                              <input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleRenameResume(r.id); if (e.key === 'Escape') setRenamingId(null); }} style={{ fontSize: 13, padding: '4px 8px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', outline: 'none', width: 160 }} autoFocus />
-                              <button onClick={() => handleRenameResume(r.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', padding: 4 }}><Check size={14} /></button>
+                              <input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleRenameResume(r.id); if (e.key === 'Escape') setRenamingId(null); }} style={{ fontSize: 13, padding: '4px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.12)', background: '#f5f5f7', color: '#1d1d1f', outline: 'none', width: 160 }} autoFocus />
+                              <button onClick={() => handleRenameResume(r.id)} style={{ background: 'none', border: 'none', color: '#86868b', cursor: 'pointer', padding: 4 }}><Check size={14} /></button>
                               <button onClick={() => setRenamingId(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: 4 }}><X size={14} /></button>
                             </div>
                           ) : (
                             <>
-                              <span style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{r.name}</span>
-                              {r.is_default && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)' }}>默认</span>}
+                              <span style={{ fontSize: 14, color: '#1d1d1f', fontWeight: 600 }}>{r.name}</span>
+                              {r.is_default && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(0,0,0,0.06)', color: '#86868b' }}>默认</span>}
                             </>
                           )}
                         </div>
@@ -1080,7 +1080,7 @@ function App() {
 
                       {/* Expanded details */}
                       {expandedResumeId === r.id && (
-                        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(0,0,0,0.04)' }}>
                           {/* Content preview */}
                           <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.7, marginBottom: 12, maxHeight: 200, overflowY: 'auto', padding: '10px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.2)', whiteSpace: 'pre-wrap' }}>
                             {(r.resume_text ?? '').slice(0, 500)}{(r.resume_text ?? '').length > 500 ? '...' : ''}
@@ -1089,7 +1089,7 @@ function App() {
 
                           {/* Action buttons */}
                           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                            <button onClick={() => { setResumeText(r.resume_text); setShowResumes(false); }} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <button onClick={() => { setResumeText(r.resume_text); setShowResumes(false); }} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(0,0,0,0.04)', color: '#86868b', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                               <Eye size={13} /> 加载到编辑器
                             </button>
                             {!r.is_default && (
@@ -1097,14 +1097,14 @@ function App() {
                                 设为默认
                               </button>
                             )}
-                            <button onClick={() => { setRenamingId(r.id); setRenameValue(r.name); }} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <button onClick={() => { setRenamingId(r.id); setRenameValue(r.name); }} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(0,0,0,0.03)', color: '#94a3b8', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                               <Edit2 size={13} /> 重命名
                             </button>
                             {deleteConfirmId === r.id ? (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <span style={{ fontSize: 12, color: '#f87171' }}>确认删除？</span>
                                 <button onClick={() => handleDeleteResume(r.id)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(248,113,113,0.15)', color: '#f87171', border: 'none', cursor: 'pointer' }}>删除</button>
-                                <button onClick={() => setDeleteConfirmId(null)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: 'none', cursor: 'pointer' }}>取消</button>
+                                <button onClick={() => setDeleteConfirmId(null)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(0,0,0,0.03)', color: '#94a3b8', border: 'none', cursor: 'pointer' }}>取消</button>
                               </div>
                             ) : (
                               <button onClick={() => setDeleteConfirmId(r.id)} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(248,113,113,0.1)', color: '#f87171', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
@@ -1129,13 +1129,13 @@ function App() {
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowFavorites(false); setExpandedFavId(null); setFavDeleteConfirmId(null); setFavSearch(''); }}>
             <motion.div className="modal-content" style={{ maxWidth: 640, maxHeight: '80vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
               <button className="modal-close" onClick={() => { setShowFavorites(false); setExpandedFavId(null); setFavDeleteConfirmId(null); setFavSearch(''); }}><X size={18} /></button>
-              <h2 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 20 }}><Bookmark size={18} style={{ verticalAlign: -3, marginRight: 8 }} />岗位收藏</h2>
+              <h2 style={{ margin: '0 0 16px', color: '#1d1d1f', fontSize: 20 }}><Bookmark size={18} style={{ verticalAlign: -3, marginRight: 8 }} />岗位收藏</h2>
 
               {/* Search + Sort */}
               {favorites.length > 0 && (
                 <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                  <input value={favSearch} onChange={(e) => setFavSearch(e.target.value)} placeholder="搜索岗位/公司..." style={{ flex: 1, fontSize: 13, padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)', color: '#e2e8f0', outline: 'none' }} />
-                  <button onClick={() => setFavSort(favSort === 'score' ? 'priority' : 'score')} style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                  <input value={favSearch} onChange={(e) => setFavSearch(e.target.value)} placeholder="搜索岗位/公司..." style={{ flex: 1, fontSize: 13, padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.06)', background: 'rgba(0,0,0,0.2)', color: '#1d1d1f', outline: 'none' }} />
+                  <button onClick={() => setFavSort(favSort === 'score' ? 'priority' : 'score')} style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.03)', color: '#94a3b8', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                     {favSort === 'score' ? '按匹配度' : '按优先级'}
                   </button>
                 </div>
@@ -1155,15 +1155,15 @@ function App() {
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {filtered.map((f: any) => (
-                      <div key={f.id} style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: expandedFavId === f.id ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)', transition: 'background 0.2s' }}>
+                      <div key={f.id} style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)', background: expandedFavId === f.id ? 'rgba(0,0,0,0.03)' : 'rgba(0,0,0,0.02)', transition: 'background 0.2s' }}>
                         {/* Header row */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setExpandedFavId(expandedFavId === f.id ? null : f.id)}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-                            <span style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{f.job_title}</span>
-                            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: f.priority === '高' ? 'rgba(255,255,255,0.08)' : f.priority === '中' ? 'rgba(129,140,248,0.15)' : 'rgba(248,113,113,0.1)', color: f.priority === '高' ? 'rgba(255,255,255,0.6)' : f.priority === '中' ? '#818cf8' : '#f87171' }}>{f.priority ?? '中'}</span>
+                            <span style={{ fontSize: 14, color: '#1d1d1f', fontWeight: 600 }}>{f.job_title}</span>
+                            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: f.priority === '高' ? 'rgba(0,0,0,0.06)' : f.priority === '中' ? 'rgba(129,140,248,0.15)' : 'rgba(248,113,113,0.1)', color: f.priority === '高' ? '#86868b' : f.priority === '中' ? '#818cf8' : '#f87171' }}>{f.priority ?? '中'}</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{f.match_score ?? 0}%</span>
+                            <span style={{ fontSize: 13, color: '#86868b', fontWeight: 600 }}>{f.match_score ?? 0}%</span>
                             <ChevronDown size={14} style={{ color: '#64748b', transform: expandedFavId === f.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                           </div>
                         </div>
@@ -1173,15 +1173,15 @@ function App() {
 
                         {/* Expanded details */}
                         {expandedFavId === f.id && (
-                          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(0,0,0,0.04)' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
                               <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.2)' }}>
                                 <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>匹配度</div>
-                                <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>{f.match_score ?? 0}%</div>
+                                <div style={{ fontSize: 16, color: '#86868b', fontWeight: 700 }}>{f.match_score ?? 0}%</div>
                               </div>
                               <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.2)' }}>
                                 <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>优先级</div>
-                                <div style={{ fontSize: 16, color: f.priority === '高' ? 'rgba(255,255,255,0.6)' : '#818cf8', fontWeight: 700 }}>{f.priority ?? '中'}</div>
+                                <div style={{ fontSize: 16, color: f.priority === '高' ? '#86868b' : '#818cf8', fontWeight: 700 }}>{f.priority ?? '中'}</div>
                               </div>
                               {f.job_type && (
                                 <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.2)' }}>
@@ -1216,7 +1216,7 @@ function App() {
                                 }}
                                 style={{ cursor: 'pointer' }}
                               />
-                              {compareA?.id === f.id && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>A</span>}
+                              {compareA?.id === f.id && <span style={{ fontSize: 11, color: '#86868b' }}>A</span>}
                               {compareB?.id === f.id && <span style={{ fontSize: 11, color: '#818cf8' }}>B</span>}
 
                               <div style={{ flex: 1 }} />
@@ -1225,7 +1225,7 @@ function App() {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                   <span style={{ fontSize: 12, color: '#f87171' }}>确认取消收藏？</span>
                                   <button onClick={() => handleRemoveFavorite(f.id)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(248,113,113,0.15)', color: '#f87171', border: 'none', cursor: 'pointer' }}>确认</button>
-                                  <button onClick={() => setFavDeleteConfirmId(null)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: 'none', cursor: 'pointer' }}>取消</button>
+                                  <button onClick={() => setFavDeleteConfirmId(null)} style={{ fontSize: 12, padding: '6px 12px', borderRadius: 6, background: 'rgba(0,0,0,0.03)', color: '#94a3b8', border: 'none', cursor: 'pointer' }}>取消</button>
                                 </div>
                               ) : (
                                 <button onClick={() => setFavDeleteConfirmId(f.id)} style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6, background: 'rgba(248,113,113,0.1)', color: '#f87171', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
@@ -1254,23 +1254,23 @@ function App() {
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowCompare(false); setCompareResult(null); }}>
             <motion.div className="modal-content" style={{ maxWidth: 720, maxHeight: '85vh', overflowY: 'auto' }} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
               <button className="modal-close" onClick={() => { setShowCompare(false); setCompareResult(null); }}><X size={18} /></button>
-              <h2 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 20 }}><GitCompare size={18} style={{ verticalAlign: -3, marginRight: 8 }} />岗位对比</h2>
+              <h2 style={{ margin: '0 0 16px', color: '#1d1d1f', fontSize: 20 }}><GitCompare size={18} style={{ verticalAlign: -3, marginRight: 8 }} />岗位对比</h2>
 
               {/* Selection area */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 12, alignItems: 'start', marginBottom: 20 }}>
                 {/* Job A */}
-                <div style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)' }}>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 8 }}>岗位 A</div>
+                <div style={{ padding: 14, borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', background: 'rgba(0,0,0,0.02)' }}>
+                  <div style={{ fontSize: 12, color: '#86868b', fontWeight: 600, marginBottom: 8 }}>岗位 A</div>
                   {compareA ? (
                     <div>
-                      <div style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{compareA.job_title}</div>
+                      <div style={{ fontSize: 14, color: '#1d1d1f', fontWeight: 600 }}>{compareA.job_title}</div>
                       <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{compareA.company}{compareA.city ? ` · ${compareA.city}` : ''}</div>
                       <button onClick={() => setCompareA(null)} style={{ marginTop: 8, fontSize: 11, padding: '4px 10px', borderRadius: 6, background: 'rgba(248,113,113,0.1)', color: '#f87171', border: 'none', cursor: 'pointer' }}>清除</button>
                     </div>
                   ) : (
                     <div style={{ fontSize: 13, color: '#475569' }}>
                       {favorites.length > 0 ? (
-                        <select onChange={(e) => { const f = favorites.find((x: any) => x.id === Number(e.target.value)); if (f) setCompareA(f); }} style={{ width: '100%', fontSize: 13, padding: '8px', borderRadius: 8, background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', outline: 'none' }}>
+                        <select onChange={(e) => { const f = favorites.find((x: any) => x.id === Number(e.target.value)); if (f) setCompareA(f); }} style={{ width: '100%', fontSize: 13, padding: '8px', borderRadius: 8, background: '#f5f5f7', color: '#1d1d1f', border: '1px solid rgba(0,0,0,0.08)', outline: 'none' }}>
                           <option value="">从收藏中选择...</option>
                           {favorites.map((f: any) => <option key={f.id} value={f.id}>{f.job_title} — {f.company}</option>)}
                         </select>
@@ -1289,14 +1289,14 @@ function App() {
                   <div style={{ fontSize: 12, color: '#818cf8', fontWeight: 600, marginBottom: 8 }}>岗位 B</div>
                   {compareB ? (
                     <div>
-                      <div style={{ fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{compareB.job_title}</div>
+                      <div style={{ fontSize: 14, color: '#1d1d1f', fontWeight: 600 }}>{compareB.job_title}</div>
                       <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{compareB.company}{compareB.city ? ` · ${compareB.city}` : ''}</div>
                       <button onClick={() => setCompareB(null)} style={{ marginTop: 8, fontSize: 11, padding: '4px 10px', borderRadius: 6, background: 'rgba(248,113,113,0.1)', color: '#f87171', border: 'none', cursor: 'pointer' }}>清除</button>
                     </div>
                   ) : (
                     <div style={{ fontSize: 13, color: '#475569' }}>
                       {favorites.length > 0 ? (
-                        <select onChange={(e) => { const f = favorites.find((x: any) => x.id === Number(e.target.value)); if (f) setCompareB(f); }} style={{ width: '100%', fontSize: 13, padding: '8px', borderRadius: 8, background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', outline: 'none' }}>
+                        <select onChange={(e) => { const f = favorites.find((x: any) => x.id === Number(e.target.value)); if (f) setCompareB(f); }} style={{ width: '100%', fontSize: 13, padding: '8px', borderRadius: 8, background: '#f5f5f7', color: '#1d1d1f', border: '1px solid rgba(0,0,0,0.08)', outline: 'none' }}>
                           <option value="">从收藏中选择...</option>
                           {favorites.map((f: any) => <option key={f.id} value={f.id}>{f.job_title} — {f.company}</option>)}
                         </select>
@@ -1315,22 +1315,22 @@ function App() {
 
               {/* Compare results */}
               {compareResult && (
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 20 }}>
-                  <h3 style={{ margin: '0 0 16px', color: '#e2e8f0', fontSize: 16 }}>对比结果</h3>
+                <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: 20 }}>
+                  <h3 style={{ margin: '0 0 16px', color: '#1d1d1f', fontSize: 16 }}>对比结果</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                     {/* Job A result */}
-                    <div style={{ padding: 16, borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.01)' }}>
-                      <div style={{ fontSize: 15, color: '#e2e8f0', fontWeight: 600, marginBottom: 4 }}>{compareResult.job_a?.title || compareA?.job_title}</div>
+                    <div style={{ padding: 16, borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)', background: 'rgba(0,0,0,0.02)' }}>
+                      <div style={{ fontSize: 15, color: '#1d1d1f', fontWeight: 600, marginBottom: 4 }}>{compareResult.job_a?.title || compareA?.job_title}</div>
                       <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>{compareResult.job_a?.company || compareA?.company}</div>
                       <div style={{ textAlign: 'center', marginBottom: 12 }}>
-                        <div style={{ fontSize: 36, fontWeight: 800, color: 'rgba(255,255,255,0.6)' }}>{compareResult.job_a?.match_result?.match_score ?? 0}%</div>
+                        <div style={{ fontSize: 36, fontWeight: 800, color: '#86868b' }}>{compareResult.job_a?.match_result?.match_score ?? 0}%</div>
                         <div style={{ fontSize: 12, color: '#475569' }}>匹配度</div>
                       </div>
                       <div style={{ marginBottom: 8 }}>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 4 }}>已匹配技能</div>
+                        <div style={{ fontSize: 12, color: '#86868b', fontWeight: 600, marginBottom: 4 }}>已匹配技能</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                           {(compareResult.job_a?.match_result?.matched_skills ?? []).map((s: string, i: number) => (
-                            <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)' }}>{s}</span>
+                            <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(0,0,0,0.04)', color: '#86868b' }}>{s}</span>
                           ))}
                         </div>
                       </div>
@@ -1346,17 +1346,17 @@ function App() {
 
                     {/* Job B result */}
                     <div style={{ padding: 16, borderRadius: 10, border: '1px solid rgba(129,140,248,0.2)', background: 'rgba(129,140,248,0.03)' }}>
-                      <div style={{ fontSize: 15, color: '#e2e8f0', fontWeight: 600, marginBottom: 4 }}>{compareResult.job_b?.title || compareB?.job_title}</div>
+                      <div style={{ fontSize: 15, color: '#1d1d1f', fontWeight: 600, marginBottom: 4 }}>{compareResult.job_b?.title || compareB?.job_title}</div>
                       <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>{compareResult.job_b?.company || compareB?.company}</div>
                       <div style={{ textAlign: 'center', marginBottom: 12 }}>
                         <div style={{ fontSize: 36, fontWeight: 800, color: '#818cf8' }}>{compareResult.job_b?.match_result?.match_score ?? 0}%</div>
                         <div style={{ fontSize: 12, color: '#475569' }}>匹配度</div>
                       </div>
                       <div style={{ marginBottom: 8 }}>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 4 }}>已匹配技能</div>
+                        <div style={{ fontSize: 12, color: '#86868b', fontWeight: 600, marginBottom: 4 }}>已匹配技能</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                           {(compareResult.job_b?.match_result?.matched_skills ?? []).map((s: string, i: number) => (
-                            <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)' }}>{s}</span>
+                            <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(0,0,0,0.04)', color: '#86868b' }}>{s}</span>
                           ))}
                         </div>
                       </div>
@@ -1375,7 +1375,7 @@ function App() {
                   <div style={{ marginTop: 16, padding: 14, borderRadius: 10, background: 'rgba(0,0,0,0.2)', textAlign: 'center' }}>
                     <div style={{ fontSize: 13, color: '#94a3b8' }}>
                       {(compareResult.job_a?.match_result?.match_score ?? 0) > (compareResult.job_b?.match_result?.match_score ?? 0)
-                        ? <>🟢 <strong style={{ color: 'rgba(255,255,255,0.6)' }}>{compareResult.job_a?.title}</strong> 匹配度更高，建议优先投递</>
+                        ? <>🟢 <strong style={{ color: '#86868b' }}>{compareResult.job_a?.title}</strong> 匹配度更高，建议优先投递</>
                         : (compareResult.job_b?.match_result?.match_score ?? 0) > (compareResult.job_a?.match_result?.match_score ?? 0)
                         ? <>🟢 <strong style={{ color: '#818cf8' }}>{compareResult.job_b?.title}</strong> 匹配度更高，建议优先投递</>
                         : <>两个岗位匹配度相同，可根据其他因素选择</>

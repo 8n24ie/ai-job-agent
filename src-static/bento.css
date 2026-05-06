@@ -1,16 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   智聘 AI — Apple-Inspired Monochrome
-   Pure black/white. No accent color. Typography as design.
+   智聘 AI — Apple Light Theme
+   Pure white/black/gray. Clean, airy, confident.
    ═══════════════════════════════════════════════════════════════ */
-
-/* ── Override base variables ───────────────────────────────── */
-.bento-section,
-.bento-section ~ *,
-.hero-section,
-.hero-section ~ * {
-  --accent: #fff;
-  --accent-dim: rgba(255,255,255,0.06);
-}
 
 /* ── Hero: Ultra Clean Apple Style ──────────────────────────── */
 .hero-section {
@@ -21,6 +12,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background: #fff;
 }
 
 .hero-badge {
@@ -29,9 +21,9 @@
   gap: 8px;
   padding: 6px 18px;
   border-radius: 100px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.4);
+  background: #f5f5f7;
+  border: 1px solid rgba(0,0,0,0.06);
+  color: #86868b;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.06em;
@@ -45,12 +37,12 @@
   letter-spacing: -0.05em;
   line-height: 0.9;
   margin-bottom: 32px;
-  color: #fff;
+  color: #000;
 }
 
 .hero-sub {
   font-size: 20px;
-  color: rgba(255,255,255,0.4);
+  color: #86868b;
   max-width: 480px;
   margin: 0 auto 56px;
   line-height: 1.5;
@@ -71,8 +63,8 @@
   gap: 8px;
   padding: 16px 36px;
   border-radius: 100px;
-  background: #fff;
-  color: #000;
+  background: #000;
+  color: #fff;
   font-weight: 600;
   font-size: 15px;
   text-decoration: none;
@@ -83,8 +75,8 @@
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 32px rgba(255,255,255,0.1);
-  background: #f5f5f5;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  background: #1a1a1a;
 }
 
 .btn-ghost {
@@ -94,19 +86,18 @@
   padding: 16px 36px;
   border-radius: 100px;
   background: transparent;
-  color: rgba(255,255,255,0.6);
+  color: #1d1d1f;
   font-weight: 500;
   font-size: 15px;
   text-decoration: none;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(0,0,0,0.12);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .btn-ghost:hover {
-  border-color: rgba(255,255,255,0.25);
-  color: #fff;
-  background: rgba(255,255,255,0.03);
+  border-color: rgba(0,0,0,0.25);
+  background: #f5f5f7;
 }
 
 .hero-checks {
@@ -118,13 +109,14 @@
 
 .hero-checks span {
   font-size: 13px;
-  color: rgba(255,255,255,0.2);
+  color: #aeaeb2;
   letter-spacing: 0.02em;
 }
 
 /* ── Bento Grid ─────────────────────────────────────────────── */
 .bento-section {
   padding: 0 24px 120px;
+  background: #fff;
 }
 
 .bento-header {
@@ -136,7 +128,7 @@
   font-size: clamp(28px, 4vw, 44px);
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: #fff;
+  color: #000;
 }
 
 .bento-grid {
@@ -146,16 +138,16 @@
   gap: 2px;
   max-width: 1200px;
   margin: 0 auto;
-  background: rgba(255,255,255,0.03);
+  background: rgba(0,0,0,0.06);
   border-radius: 24px;
   overflow: hidden;
 }
 
-/* Card: pure black, 1px subtle border, NO glow */
+/* Card: pure white, clean */
 .bento-card {
   position: relative;
   padding: 36px;
-  background: #000;
+  background: #fff;
   overflow: hidden;
   cursor: default;
   transition: background 0.4s ease;
@@ -172,7 +164,7 @@
 }
 
 .bento-card:hover {
-  background: #0a0a0a;
+  background: #fafafa;
   transform: none;
   box-shadow: none;
   border-color: transparent;
@@ -189,7 +181,7 @@
   grid-column: span 2;
 }
 
-/* Card icon: white on dark, subtle */
+/* Card icon: subtle gray */
 .bento-icon {
   width: 40px;
   height: 40px;
@@ -197,45 +189,45 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.5);
+  background: #f5f5f7;
+  color: #86868b;
   margin-bottom: 24px;
 }
 
 .bento-card h3 {
   font-size: 20px;
   font-weight: 600;
-  color: #fff;
+  color: #000;
   margin-bottom: 8px;
   letter-spacing: -0.02em;
 }
 
 .bento-card p {
   font-size: 14px;
-  color: rgba(255,255,255,0.35);
+  color: #86868b;
   line-height: 1.6;
 }
 
-/* Match score: white ring, no color */
+/* Match score: bold black */
 .bento-metric {
   margin-top: auto;
   padding-top: 24px;
   font-size: 56px;
   font-weight: 800;
-  color: #fff;
+  color: #000;
   letter-spacing: -0.04em;
   font-family: var(--font-mono);
 }
 
 .bento-metric small {
   font-size: 18px;
-  color: rgba(255,255,255,0.25);
+  color: #aeaeb2;
   font-weight: 400;
   font-family: var(--font-sans);
   margin-left: 4px;
 }
 
-/* Match ring: pure white outline */
+/* Match ring: black outline */
 .match-ring {
   position: absolute;
   bottom: 32px;
@@ -243,19 +235,19 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.1);
+  border: 2px solid rgba(0,0,0,0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
   font-weight: 800;
-  color: #fff;
+  color: #000;
   font-family: var(--font-mono);
   transition: all 0.5s ease;
 }
 
 .bento-card:hover .match-ring {
-  border-color: rgba(255,255,255,0.3);
+  border-color: rgba(0,0,0,0.2);
   transform: scale(1.05);
   box-shadow: none;
 }
@@ -272,22 +264,22 @@
   width: 100%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: rgba(255,255,255,0.06);
+  background: #f0f0f2;
   transition: all 0.4s ease;
 }
 
 .bento-card:hover .radar-dot {
-  background: rgba(255,255,255,0.12);
+  background: #e8e8ed;
   transform: scale(1.1);
 }
 
 .radar-dot.gap {
-  background: rgba(255,255,255,0.02);
-  border: 1px dashed rgba(255,255,255,0.06);
+  background: #f8f8fa;
+  border: 1px dashed rgba(0,0,0,0.08);
 }
 
 .bento-card:hover .radar-dot.gap {
-  background: rgba(255,255,255,0.04);
+  background: #f0f0f2;
 }
 
 /* Before/After text: grayscale */
@@ -308,17 +300,17 @@
 }
 
 .text-compare .before {
-  background: rgba(255,255,255,0.02);
-  color: rgba(255,255,255,0.25);
-  border: 1px solid rgba(255,255,255,0.04);
+  background: #f8f8fa;
+  color: #aeaeb2;
+  border: 1px solid rgba(0,0,0,0.04);
   text-decoration: line-through;
-  text-decoration-color: rgba(255,255,255,0.1);
+  text-decoration-color: rgba(0,0,0,0.1);
 }
 
 .text-compare .after {
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.7);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: #f0f0f2;
+  color: #1d1d1f;
+  border: 1px solid rgba(0,0,0,0.06);
 }
 
 /* Question stack */
@@ -336,24 +328,24 @@
   gap: 12px;
   padding: 12px 16px;
   border-radius: 10px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.03);
+  background: #f8f8fa;
+  border: 1px solid rgba(0,0,0,0.04);
   font-size: 13px;
-  color: rgba(255,255,255,0.5);
+  color: #86868b;
   transition: all 0.3s ease;
 }
 
 .bento-card:hover .q-item {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.06);
+  background: #f0f0f2;
+  border-color: rgba(0,0,0,0.06);
 }
 
 .q-num {
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.4);
+  background: #f0f0f2;
+  color: #86868b;
   font-size: 11px;
   font-weight: 600;
   display: flex;
@@ -363,7 +355,7 @@
   font-family: var(--font-mono);
 }
 
-/* Batch bars: white */
+/* Batch bars: gray */
 .batch-bars {
   margin-top: 16px;
   display: flex;
@@ -375,7 +367,7 @@
 .batch-bar {
   height: 4px;
   border-radius: 2px;
-  background: rgba(255,255,255,0.04);
+  background: #f0f0f2;
   overflow: hidden;
 }
 
@@ -383,12 +375,12 @@
   display: block;
   height: 100%;
   border-radius: 2px;
-  background: rgba(255,255,255,0.2);
+  background: #d0d0d5;
   transition: width 1.2s ease;
 }
 
 .bento-card:hover .batch-bar i {
-  background: rgba(255,255,255,0.5);
+  background: #000;
 }
 
 /* Format pills: minimal */
@@ -401,24 +393,25 @@
 .format-pill {
   padding: 6px 14px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.04);
+  background: #f5f5f7;
+  border: 1px solid rgba(0,0,0,0.04);
   font-size: 12px;
   font-family: var(--font-mono);
-  color: rgba(255,255,255,0.3);
+  color: #aeaeb2;
   transition: all 0.3s ease;
   letter-spacing: 0.04em;
 }
 
 .bento-card:hover .format-pill {
-  border-color: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: #1d1d1f;
+  background: #f0f0f2;
 }
 
 /* ── Pipeline Steps ─────────────────────────────────────────── */
 .pipeline-section {
   padding: 0 24px 120px;
+  background: #fff;
 }
 
 .pipeline-header {
@@ -430,7 +423,7 @@
   font-size: clamp(28px, 4vw, 44px);
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: #fff;
+  color: #000;
 }
 
 .pipeline-steps {
@@ -439,14 +432,14 @@
   gap: 2px;
   max-width: 1200px;
   margin: 0 auto;
-  background: rgba(255,255,255,0.03);
+  background: rgba(0,0,0,0.06);
   border-radius: 24px;
   overflow: hidden;
 }
 
 .step-card {
   padding: 40px 28px;
-  background: #000;
+  background: #fff;
   text-align: center;
   transition: background 0.4s ease;
   position: relative;
@@ -455,7 +448,7 @@
 }
 
 .step-card:hover {
-  background: #0a0a0a;
+  background: #fafafa;
   border-color: transparent;
   transform: none;
 }
@@ -467,8 +460,8 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.3);
+  background: #f5f5f7;
+  color: #86868b;
   font-size: 18px;
   font-weight: 700;
   font-family: var(--font-mono);
@@ -478,70 +471,61 @@
 }
 
 .step-card:hover .step-num {
-  background: #fff;
-  color: #000;
+  background: #000;
+  color: #fff;
   transform: scale(1.05);
 }
 
 .step-card h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #fff;
+  color: #000;
   margin-bottom: 10px;
   letter-spacing: -0.01em;
 }
 
 .step-card p {
   font-size: 13px;
-  color: rgba(255,255,255,0.3);
+  color: #86868b;
   line-height: 1.6;
 }
 
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .bento-grid,
-  .pipeline-steps {
+  .bento-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   .bento-card.large {
     grid-column: span 2;
     grid-row: span 1;
-    min-height: 280px;
+    min-height: 300px;
   }
   .bento-card.wide {
     grid-column: span 2;
   }
+  .pipeline-steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 600px) {
-  .bento-grid,
-  .pipeline-steps {
+  .bento-grid {
     grid-template-columns: 1fr;
   }
   .bento-card.large,
   .bento-card.wide {
     grid-column: span 1;
+    grid-row: span 1;
+    min-height: 200px;
   }
-  .hero-section {
-    padding: 120px 20px 80px;
-    min-height: auto;
+  .pipeline-steps {
+    grid-template-columns: 1fr;
   }
   .hero-title {
     font-size: 56px;
   }
-  .hero-sub {
-    font-size: 16px;
-  }
-  .hero-ctas {
-    flex-direction: column;
-    align-items: center;
-  }
-  .btn-primary,
-  .btn-ghost {
-    width: 100%;
-    justify-content: center;
-  }
-  .text-compare {
-    grid-template-columns: 1fr;
+  .hero-section {
+    padding: 120px 24px 80px;
+    min-height: 50vh;
   }
 }
