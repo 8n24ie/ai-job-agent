@@ -10,8 +10,8 @@
 :root {
   color-scheme: dark;
   /* ── Zinc/Slate base (tinted toward emerald, not blue) ── */
-  --bg: #0a0a0f;
-  --bg-subtle: #111118;
+  --bg: #000;
+  --bg-subtle: #050505;
   --panel: rgba(16, 18, 24, 0.78);
   --panel-strong: rgba(16, 18, 24, 0.94);
   --line: rgba(161, 161, 170, 0.12);
@@ -21,14 +21,14 @@
   --muted: #a1a1aa;
   --muted-dim: #71717a;
   /* ── Single accent: Emerald ── */
-  --accent: #34d399;
-  --accent-dim: rgba(52, 211, 153, 0.12);
-  --accent-glow: rgba(52, 211, 153, 0.08);
+  --accent: #fff;
+  --accent-dim: rgba(255, 255, 255, 0.06);
+  --accent-glow: rgba(255, 255, 255, 0.04);
   /* ── Supporting tones (desaturated) ── */
-  --amber: #d4a026;
-  --amber-dim: rgba(212, 160, 38, 0.12);
-  --rose: #c27070;
-  --rose-dim: rgba(194, 112, 112, 0.12);
+  --amber: #fff;
+  --amber-dim: rgba(255, 255, 255, 0.06);
+  --rose: #888;
+  --rose-dim: rgba(255, 255, 255, 0.04);
   /* ── Spacing scale (8px grid) ── */
   --space-xs: 4px;
   --space-sm: 8px;
